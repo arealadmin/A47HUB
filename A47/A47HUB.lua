@@ -11,204 +11,226 @@ local library = loadstring(game:HttpGet(
     _G.PointerColor = Color3.fromRGB(60, 60, 60)
     _G.SliderColor = Color3.fromRGB(246, 20, 255)
     _G.DraggerCircleColor = Color3.fromRGB(246, 20, 255)
-    local a = w:CreateFolder("Script Menu")
-    local b = w:CreateFolder("Player")
+    local scripts = w:CreateFolder("Script Menu")
+    local player = w:CreateFolder("Player")
     local scriptMenu
 --------------------------------------------------------------------
-game:GetService("CoreGui").PurchasePrompt.Enabled = false -- AMAZING
+--game:GetService("CoreGui").PurchasePrompt.Enabled = false
 --------------------------------------------------------------------
-a:Dropdown("Scripts", {"Simple Spy", "Infinite Yield", "V.G Hub"}, true,
+
+getgenv().playerESP = false
+
+
+scripts:Dropdown("Scripts", {"Dark Dex", "Simple Spy", "Infinite Yield", "V.G Hub", "Aim Bot", "The Survival Game"}, true,
     function(script) -- true/false, replaces the current title "Dropdown" with the option that t
-        scriptMenu = script;
+       scriptMenu = script;
     end)
 
-a:Button("Launch Script", function()
-    if scriptMenu == "Simple Spy" then
+scripts:Button("Launch Script", function()
+	if scriptMenu == "Dark Dex" then
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+    elseif scriptMenu == "Simple Spy" then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
     elseif scriptMenu == "Infinite Yield" then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
     elseif scriptMenu == "V.G Hub" then
         loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/V.Ghub'))()
+    elseif scriptMenu == "Aim Bot" then
+        aimBOT()
+    elseif scriptMenu == "The Survival Game" then
+        loadstring(game:HttpGet("https://github.com/joeengo/exploiting/blob/main/tsg.lua?raw=true", true))()
     end
 end)
 
 -- a:DestroyGui()
-b:Slider("Walk Speed", {
+--[[
+player:Slider("Walk Speed", {
     min = 16,
     max = 200,
     precise = true
     }, function(value)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
+--]]
+player:Toggle("Player ESP", function(on)
+    playerESP = on
+    if on == true then
+        toggleESP()
+    end
+end)
+
+player:Button("TP Tool",function()
+    for i,v in pairs(game.Players.LocalPlayer:FindFirstChildOfClass("Backpack"):GetChildren()) do
+		if v.Name == "TP Tool" then
+		v:Destroy()
+	end
+end
+
+	mouse = game.Players.LocalPlayer:GetMouse()
+	tool = Instance.new("Tool")
+	tool.RequiresHandle = false
+	tool.Name = "TP Tool"
+	tool.Activated:connect(function()
+	local pos = mouse.Hit+Vector3.new(0,2.5,0)
+	pos = CFrame.new(pos.X,pos.Y,pos.Z)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
+	end)
+	tool.Parent = game.Players.LocalPlayer.Backpack
+end)
+
+function toggleESP()
+    spawn(function()
+        if playerESP == true then
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+
+
+function playerESPP()
+	local namegui = Instance.new("BillboardGui")	
+		namegui.Size = UDim2.new(0,120,0,40)
+		namegui.SizeOffset = Vector2.new(0,0.5)
+		namegui.AlwaysOnTop = true
+        namegui.ClipsDescendants = true
+        namegui.LightInfluence = 1
+		namegui.Name = "Name"
+        namegui.StudsOffset = Vector3.new(0,0,0)
+        namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	local text = Instance.new("TextLabel", namegui)
+		text.Text = "Player"
+		--text.TextColor3 = Color3.fromRGB(255, 0, 0)
+        text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+        text.TextStrokeTransparency = 0.5
+		text.TextTransparency = 0.25
+		text.BackgroundTransparency = 1
+		text.TextScaled = false
+		text.Size = UDim2.new(1,0,1,0)
+        text.TextSize = 16
+		text.Font = Enum.Font.GothamSemibold
+		text.Name = "Text"
+	local Highlight = Instance.new("Highlight")
+        Highlight.Name = "Highlight"
+        Highlight.FillTransparency = 0.6
+        Highlight.OutlineTransparency = 0
+	
+    for i,v in pairs(Players:GetChildren()) do
+      repeat wait() until v.Character --Waits till a character is present
+      v.Character:WaitForChild("Humanoid").DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None --hides original nametags so you dont get dupe names
+        if v.Team and v.Team ~= game.Players.LocalPlayer.Team then
+        local Color = v.Team.TeamColor.Color
+        local R,G,B
+        R = Color.R * 255
+        G = Color.G * 255
+        B = Color.B * 255
+        text.TextColor3 = Color3.fromRGB(R,G,B)
+        Highlight.FillColor = Color3.fromRGB(R,G,B)
+        Highlight.OutlineColor = Color3.fromRGB(R,G,B)
+        else
+        text.TextColor3 = Color3.fromRGB(255,255,255) --shadow players are not on a team
+        Highlight.OutlineColor = Color3.fromRGB(0,0,0)
+        Highlight.FillColor = Color3.fromRGB(0, 0, 0)
+        Highlight.FillTransparency = 0.2 
+    end
+    
+    --------------------------------------name
+        if v.Character and v.Character:FindFirstChild("Head") then
+            if not v.Character.Head:FindFirstChild("playerName") and v ~= game.Players.LocalPlayer then
+                local esp = namegui:Clone()
+                esp.Name = "playerName"
+                esp:FindFirstChild("Text").Text = v.DisplayName
+                esp.Parent = v.Character:FindFirstChild("Head")
+            end
+   --------------------------------------highlight
+            if not v.Character.HumanoidRootPart:FindFirstChild("Highlight") and v.Character.Head:FindFirstChild("playerName") then
+                local HighlightClone = Highlight:Clone()
+                HighlightClone.Adornee = v.Character
+                HighlightClone.Parent = v.Character:FindFirstChild("HumanoidRootPart")
+                HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                HighlightClone.Name = "Highlight"
+            end
+        end
+    end
+end
+
+
+RunService.Heartbeat:Connect(function()
+	playerESPP()
+end)
+
+
+Players.PlayerAdded:Connect(function()
+for i,v in pairs(Players:GetChildren()) do
+    playerESPP()
+   end
+end)
+
+Players.PlayerRemoving:Connect(function()
+	for i,v in pairs(Players:GetChildren()) do
+	if v.Character and v.Character.HumanoidRootPart and v.Character.HumanoidRootPart:FindFirstChild("HighlightClone") then
+	HighlightClone:Destroy()
+	warn("ESP DESTROYED")
+	end
+	end
+end)
+          
+        end
+    end)
+end
 --------------------------------------------------------------------------
-if game.PlaceId == 4704006941 then
-
-    local library = loadstring(game:HttpGet(
-        ('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))()
-    local w = library:CreateWindow("Blade Simulator")
-    local a = w:CreateFolder("Blade Simulator")
-    local b = w:CreateFolder("Scripts")
-    local path = game:GetService("ReplicatedStorage").RF
-    local playerHead = game.Players.LocalPlayer.Character.Head
-
-    getgenv().autoThrow = false
-    getgenv().autoSell = false
-    getgenv().autoUpgrades = false
-    getgenv().autoRank = false
-    getgenv().autoEgg = false
-    getgenv().autoEvolve = false
-    getgenv().autoGems = false
-
-    a:Toggle("Auto Throw", function(bool)
-        autoThrow = bool
-        if bool == true then
-            toggleThrow()
+function aimBOT()
+    local AimPart = "Head"
+    local Sens = 0
+    local Radius = 60
+    local TweenService = game:GetService("TweenService")
+    local RunService = game:GetService("RunService")
+    local UIS = game:GetService("UserInputService")
+    local Camera = game.Workspace.CurrentCamera
+    local Players = game:GetService("Players")
+    local Player = Players.LocalPlayer    
+    
+    
+function getClosest()
+    local closestPlayer = nil
+    local closesDist = Radius
+    for i,v in pairs(Players:GetChildren()) do
+        if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v.Team and v.Character.Humanoid.Health > 0 and v.Team ~= Player.Team then
+            local Screen = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", 200).Position)
+            local Dist = (Vector2.new(UIS:GetMouseLocation().X,UIS:GetMouseLocation().Y) - Vector2.new(Screen.X, Screen.Y)).magnitude
+            if Dist < closesDist then
+            closestPlayer = v
+            end
         end
-    end)
-
-    a:Toggle("Auto Sell", function(bool)
-        autoSell = bool
-        if bool == true then
-            toggleSell()
+        if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and not v.Team and v.Character.Humanoid.Health > 0 and v ~= Player then
+            local Screen = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", 200).Position)
+            local Dist = (Vector2.new(UIS:GetMouseLocation().X,UIS:GetMouseLocation().Y) - Vector2.new(Screen.X, Screen.Y)).magnitude
+            if Dist < closesDist then
+            closestPlayer = v
+            end
         end
-    end)
-
-    a:Toggle("Auto Upgrades", function(bool)
-        autoUpgrades = bool
-        if bool == true then
-            toggleBlade()
-            toggleEnergy()
+    end
+   return closestPlayer
+end
+    
+    
+UIS.InputBegan:Connect(function(inp)
+    if inp.UserInputType == Enum.UserInputType.MouseButton2 then        
+        _G.aim = true
+        if _G.aim == false then
+            return
         end
-    end)
-
-    a:Toggle("Auto Buy Rank", function(bool)
-        autoRank = bool
-        if bool == true then
-            toggleRank()
-        end
-    end)
-
-    a:Toggle("Auto Buy Pets", function(bool)
-        autoEgg = bool
-        if bool == true then
-            toggleEgg()
-        end
-    end)
-
-    a:Toggle("Auto Evolve", function(bool)
-        autoEvolve = bool
-        if bool == true then
-            toggleEvolve()
-        end
-    end)
-
-    a:Toggle("Auto Gems", function(bool)
-        autoGems = bool
-        if bool == true then
-            toggleAutoGems()
-        end
-    end)
-
-    b:Button("Simple Spy", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
-    end)
-    --------------------------------------------------------------------
-    function toggleThrow()
-        spawn(function()
-            while autoThrow == true do
-                local args = {
-                    [1] = "Throw",
-                    [2] = Vector3.new(),
-                    [3] = false
-                }
-                game:GetService("ReplicatedStorage").RE:FireServer(unpack(args))
-                wait(0.4)
-            end
-        end)
     end
-
-    function toggleSell()
-        spawn(function()
-            while autoSell == true do
-                local args = {
-                    [1] = "SellPower",
-                    [2] = workspace.Ignore.Rings:FindFirstChild("27Sell").Collider
-                }
-                path:InvokeServer(unpack(args))
-                wait(0.5)
-            end
-        end)
+end)
+    
+UIS.InputEnded:Connect(function(inp)
+    if inp.UserInputType == Enum.UserInputType.MouseButton2 then
+        _G.aim = false
     end
+end)
+    
+game:GetService("RunService").RenderStepped:Connect(function()--AIMBOT
+    if _G.aim == true and getClosest().Character then
+ 	TweenService:Create(Camera, TweenInfo.new(Sens, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(Camera.CFrame.Position, getClosest().Character[AimPart].Position)}):Play()
+   end
+end)
 
-    function toggleBlade()
-        spawn(function()
-            while autoUpgrades == true do
-                local args = {
-                    [1] = "BuyBlade",
-                    [2] = true
-                }
-                path:InvokeServer(unpack(args))
-                wait(2)
-            end
-        end)
-    end
-
-    function toggleEnergy()
-        spawn(function()
-            while autoUpgrades == true do
-                local args = {
-                    [1] = "BuyEnergy",
-                    [2] = true
-                }
-                path:InvokeServer(unpack(args))
-                wait(4)
-            end
-        end)
-    end
-
-    function toggleRank()
-        spawn(function()
-            while autoRank == true do
-                path:InvokeServer('BuyRank')
-                wait(60)
-            end
-        end)
-    end
-
-    function toggleEgg()
-        spawn(function()
-            while autoEgg == true do
-                local args = {
-                    [1] = "BuyEgg",
-                    [2] = "ElectricEgg"
-                } -- Best Egg is Ice
-                path:InvokeServer(unpack(args))
-                wait()
-            end
-        end)
-    end
-
-    function toggleEvolve()
-        spawn(function()
-            while autoEvolve == true do
-                path:InvokeServer("EvolveAll")
-                wait()
-            end
-        end)
-    end
-
-    function toggleAutoGems()
-        spawn(function()
-            while autoGems == true do
-                for i, v in pairs(game:GetService("Workspace").Collect.Gem:GetDescendants()) do
-                    if v.Name == 'TouchInterest' and v.Parent then
-                        firetouchinterest(playerHead, v.Parent, 0)
-                        wait(0.5)
-                        firetouchinterest(playerHead, v.Parent, 1)
-                    end
-                end
-            end
-        end)
-    end
 
 end
