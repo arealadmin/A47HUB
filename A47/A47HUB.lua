@@ -1,6 +1,6 @@
 local library = loadstring(game:HttpGet(
     ('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))()
-    local w = library:CreateWindow("A47 HUB") -- Creates the window
+    local w = library:CreateWindow("Kaspyrr Tools") -- Creates the window
 
     _G.MainColor = Color3.fromRGB(18, 18, 18)
     _G.SecondaryColor = Color3.fromRGB(30, 30, 30)
@@ -11,8 +11,8 @@ local library = loadstring(game:HttpGet(
     _G.PointerColor = Color3.fromRGB(60, 60, 60)
     _G.SliderColor = Color3.fromRGB(246, 20, 255)
     _G.DraggerCircleColor = Color3.fromRGB(246, 20, 255)
-    local scripts = w:CreateFolder("Script Menu")
-    local player = w:CreateFolder("Toggles")
+ --   local scripts = w:CreateFolder("Script Menu")
+    local player = w:CreateFolder("Main")
     local scriptMenu
 --------------------------------------------------------------------
 game:GetService("CoreGui").PurchasePrompt.Enabled = false
@@ -20,7 +20,7 @@ game:GetService("CoreGui").PurchasePrompt.Enabled = false
 
 getgenv().playerESP = false
 
-
+--[[
 scripts:Dropdown("Scripts", {"Dark Dex", "Simple Spy", "Infinite Yield", "Aim Bot"}, true,
     function(script) -- true/false, replaces the current title "Dropdown" with the option that t
        scriptMenu = script;
@@ -37,8 +37,8 @@ scripts:Button("Launch Script", function()
         aimBOT()
     end
 end)
+--]]
 
---[ a:DestroyGui()
 --[[
 player:Slider("Walk Speed", {
     min = 16,
@@ -52,6 +52,14 @@ player:Toggle("Player ESP", function(on)
     playerESP = on
     if on == true then
         toggleESP()
+      --  aimBOT()
+    end
+end)
+
+player:Toggle("No Clip", function(on)
+    clipping = on
+    if on == true then
+        noClip()
     end
 end)
 
@@ -60,6 +68,10 @@ player:Toggle("Auto Smith", function(on)
     if on == true then
         autoSmith()
     end
+end)
+
+player:Button("Rejoin",function()     
+    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end)
 
 player:Button("TP Tool",function()
@@ -80,9 +92,19 @@ end
 	tool.Parent = game.Players.LocalPlayer.Backpack
 end)
 
-player:Button("Rejoin",function()     
-    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
-end)
+function noClip()
+    spawn(function()
+        if clipping == true then
+            for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+                    v.CanCollide = false
+                end
+            end
+        elseif clipping == false then
+            v.CanCollide = true
+        end
+     end)
+end
 
 function autoSmith()
     spawn(function()
@@ -259,3 +281,4 @@ end)
 
 
 end
+
