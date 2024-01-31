@@ -63,10 +63,10 @@ player:Toggle("No Clip", function(on)
     end
 end)
 
-player:Toggle("Auto Smith", function(on)
-    smith = on
+player:Toggle("Auto Proximity", function(on)
+    prox = on
     if on == true then
-        autoSmith()
+        autoProx()
     end
 end)
 
@@ -106,9 +106,9 @@ function noClip()
      end)
 end
 
-function autoSmith()
+function autoProx()
     spawn(function()
-        while smith == true do
+        while prox == true do
             for i, v in pairs(game.Workspace:GetDescendants()) do
                 if v:IsA("ProximityPrompt") then
                     if v.Parent:IsA("Part") then
@@ -120,7 +120,7 @@ function autoSmith()
                     end
                 end
             end
-            task.wait(0.7)
+            task.wait(0.5)
         end
     end)
 end
