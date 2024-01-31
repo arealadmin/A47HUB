@@ -38,8 +38,8 @@ scripts:Button("Launch Script", function()
     end
 end)
 
--- a:DestroyGui()
---[
+--[ a:DestroyGui()
+--[[
 player:Slider("Walk Speed", {
     min = 16,
     max = 200,
@@ -78,6 +78,10 @@ end
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
 	end)
 	tool.Parent = game.Players.LocalPlayer.Backpack
+end)
+
+player:Button("Rejoin",function()     
+    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end)
 
 function autoSmith()
