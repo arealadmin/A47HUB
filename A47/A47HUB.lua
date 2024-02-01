@@ -1,3 +1,6 @@
+game:GetService("CoreGui").PurchasePrompt.Enabled = false
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 local library = loadstring(game:HttpGet(
     ('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))()
     local w = library:CreateWindow("Kaspyrr Tools") -- Creates the window
@@ -11,21 +14,10 @@ local library = loadstring(game:HttpGet(
     _G.PointerColor = Color3.fromRGB(60, 60, 60)
     _G.SliderColor = Color3.fromRGB(246, 20, 255)
     _G.DraggerCircleColor = Color3.fromRGB(246, 20, 255)
- --   local scripts = w:CreateFolder("Script Menu")
     local player = w:CreateFolder("Main")
     local scriptMenu
 --------------------------------------------------------------------
-game:GetService("CoreGui").PurchasePrompt.Enabled = false
 --------------------------------------------------------------------
---[[
-player:Slider("Walk Speed", {
-    min = 16,
-    max = 200,
-    precise = true
-    }, function(value)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
-end)
---]]
 player:Toggle("No Clip", function(on)
     clipping = on
     if on == true then
@@ -40,26 +32,22 @@ player:Toggle("Auto Proximity", function(on)
     end
 end)
 
-player:Button("Rejoin",function()     
-    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
-end)
+if game.PlaceId == 2693739238 then
+    player:Button("Buy Pinks",function()     
+        BuyPinks()
+    end)
+
+    player:Button("Sell Pinks",function()     
+        SellPinks()
+    end)
+end
 
 player:Button("TP Tool",function()
-    for i,v in pairs(game.Players.LocalPlayer:FindFirstChildOfClass("Backpack"):GetChildren()) do
-		if v.Name == "TP Tool" then
-		v:Destroy()
-	end
-end
-	mouse = game.Players.LocalPlayer:GetMouse()
-	tool = Instance.new("Tool")
-	tool.RequiresHandle = false
-	tool.Name = "TP Tool"
-	tool.Activated:connect(function()
-	local pos = mouse.Hit+Vector3.new(0,2.5,0)
-	pos = CFrame.new(pos.X,pos.Y,pos.Z)
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
-	end)
-	tool.Parent = game.Players.LocalPlayer.Backpack
+    giveTPtool()
+end)
+
+player:Button("Rejoin",function()     
+    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end)
 
 function noClip()
@@ -90,8 +78,47 @@ function autoProx()
                     end
                 end
             end
-            task.wait(0.5)
+            task.wait(0.7)
         end
     end)
+end
+
+function giveTPtool()
+    for i,v in pairs(game.Players.LocalPlayer:FindFirstChildOfClass("Backpack"):GetChildren()) do
+		if v.Name == "TP Tool" then
+		v:Destroy()
+        end
+	end
+	local mouse = game.Players.LocalPlayer:GetMouse()
+	tool = Instance.new("Tool")
+	tool.RequiresHandle = false
+	tool.Name = "TP Tool"
+	tool.Activated:connect(function()
+	local pos = mouse.Hit+Vector3.new(0,2.5,0)
+	pos = CFrame.new(pos.X,pos.Y,pos.Z)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
+	end)
+	tool.Parent = game.Players.LocalPlayer.Backpack
+end
+
+function BuyPinks()
+    local guns = game:GetService("ReplicatedStorage").Weapons:GetChildren()
+    for i,v in pairs(guns) do
+        if v:FindFirstChild("MaxAmmo") then
+        v.Firerate.Value = 0.01
+        v.MaxAmmo.Value = 9999999
+        end
+    end 
+    for i = 1,50 do
+        game:GetService("ReplicatedStorage").Events.GunShop.RequestBuy:FireServer('RareM4A1')
+        task.wait(0.1)
+    end
+end
+
+function SellPinks()
+    for i = 1,50 do
+        game:GetService("ReplicatedStorage").Events.Shop.RequestSellItem:FireServer(1)
+    end
+
 end
 
