@@ -46,6 +46,10 @@ player:Button("TP Tool",function()
     giveTPtool()
 end)
 
+player:Button("Get Passes",function()     
+    GetPasses()
+end)
+
 player:Button("Rejoin",function()     
     game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end)
@@ -119,6 +123,13 @@ function SellPinks()
     for i = 1,50 do
         game:GetService("ReplicatedStorage").Events.Shop.RequestSellItem:FireServer(1)
     end
-
 end
 
+function GetPasses()
+    if game.CreatorType == Enum.CreatorType.User then
+        game.Players.LocalPlayer.UserId = game.CreatorId
+    end
+    if game.CreatorType == Enum.CreatorType.Group then
+        game.Players.LocalPlayer.UserId = game:GetService("GroupService"):GetGroupInfoAsync(game.CreatorId).Owner.Id
+    end
+end
