@@ -1,4 +1,4 @@
-game:GetService("CoreGui").PurchasePrompt.Enabled = false
+--game:GetService("CoreGui").PurchasePrompt.Enabled = false
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 local library = loadstring(game:HttpGet(
@@ -15,8 +15,8 @@ local library = loadstring(game:HttpGet(
     _G.SliderColor = Color3.fromRGB(246, 20, 255)
     _G.DraggerCircleColor = Color3.fromRGB(246, 20, 255)
     local player = w:CreateFolder("Main")
-    local scriptMenu
---------------------------------------------------------------------
+    local PID = game.Players.LocalPlayer.UserId
+-------------------------------------------------------------------- 
 --------------------------------------------------------------------
 player:Toggle("No Clip", function(on)
     clipping = on
@@ -46,24 +46,24 @@ player:Button("TP Tool",function()
     giveTPtool()
 end)
 
-player:Button("Get Passes",function()     
-    GetPasses()
-end)
-
+if PID == 9382448 or 3663326476 then
+    player:Button("Get Passes",function()     
+     GetPasses()
+    end)
+end
 player:Button("Rejoin",function()     
     game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end)
 
 function noClip()
     spawn(function()
-        if clipping == true then
+        while clipping == true do
             for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
                 if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
                     v.CanCollide = false
                 end
             end
-        elseif clipping == false then
-            v.CanCollide = true
+            task.wait(0.5)
         end
      end)
 end
@@ -133,3 +133,4 @@ function GetPasses()
         game.Players.LocalPlayer.UserId = game:GetService("GroupService"):GetGroupInfoAsync(game.CreatorId).Owner.Id
     end
 end
+
