@@ -75,14 +75,14 @@ function autoProx()
                 if v:IsA("ProximityPrompt") then
                     if v.Parent:IsA("Part") then
                         if v.Parent.Size == Vector3.new(1,1,1) and v.Name ~= "ConscriptionProx" then
-                            if (v.Parent.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
+                            if (v.Parent.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 30 then
                             fireproximityprompt(v)
                             end
                         end
                     end
                 end
             end
-            task.wait(0.7)
+            task.wait(0.8)
         end
     end)
 end
