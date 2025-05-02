@@ -23,14 +23,14 @@ local library = loadstring(game:HttpGet(
 
  getgenv().playerESP = false
 
-scripts:Dropdown("Scripts", {"Dark Dex", "Simple Spy", "Infinite Yield", "V.G Hub", "Aim Bot", "The Survival Game"}, true,
+scripts:Dropdown("Scripts", {"Remote Explorer", "Simple Spy", "Void Hub", "Aim Bot"}, true,
     function(script) -- true/false, replaces the current title "Dropdown" with the option that t
        scriptMenu = script;
     end)
 
 scripts:Button("Launch Script", function()
-	if scriptMenu == "Dark Dex" then
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+	if scriptMenu == "Remote Explorer" then
+	loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Remote-Explorer-38352"))()
     elseif scriptMenu == "Simple Spy" then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
     elseif scriptMenu == "Void Hub" then
@@ -41,7 +41,7 @@ scripts:Button("Launch Script", function()
     end
 end)
 
--- a:DestroyGui()
+-- a:DestroyGui()     -- loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Remote-Explorer-38352"))()
 
 player:Toggle("Player ESP", function(on)
     playerESP = on
