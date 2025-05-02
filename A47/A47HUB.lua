@@ -1,4 +1,4 @@
---game:GetService("CoreGui").PurchasePrompt.Enabled = false
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 local library = loadstring(game:HttpGet(
@@ -30,17 +30,14 @@ scripts:Dropdown("Scripts", {"Dark Dex", "Simple Spy", "Infinite Yield", "V.G Hu
 
 scripts:Button("Launch Script", function()
 	if scriptMenu == "Dark Dex" then
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
     elseif scriptMenu == "Simple Spy" then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
-    elseif scriptMenu == "Infinite Yield" then
-        loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
-    elseif scriptMenu == "V.G Hub" then
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/V.Ghub'))()
+    elseif scriptMenu == "Void Hub" then
+        loadstring(game:HttpGet('https://rawscripts.net/raw/BlockSpin-Void-Hub-Combat-Script-V2-37572'))()
+	print("Void Hub Key: AMDGLEID")
     elseif scriptMenu == "Aim Bot" then
         aimBOT()
-    elseif scriptMenu == "The Survival Game" then
-        loadstring(game:HttpGet("https://github.com/joeengo/exploiting/blob/main/tsg.lua?raw=true", true))()
     end
 end)
 
