@@ -53,6 +53,21 @@ player:Toggle("Player ESP", function(on)
     end
 end)
 
+player:Toggle("No Clip", function(on)
+    clipping = on
+    if on == true then
+        noClip()
+    end
+end)
+
+player:Slider("Walk Speed", {
+    min = 16,
+    max = 32,
+    precise = true
+    }, function(value)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+end)
+
 function toggleESP()
     spawn(function()
         if playerESP == true then
@@ -197,21 +212,6 @@ end
 
 
 ---------------------------------------------------------------------
-player:Toggle("No Clip", function(on)
-    clipping = on
-    if on == true then
-        noClip()
-    end
-end)
-
-player:Slider("Walk Speed", {
-    min = 16,
-    max = 32,
-    precise = true
-    }, function(value)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
-end)
-
 if game.PlaceId == 9588998913 then
 	player:Toggle("Auto Proximity", function(on)
     	prox = on
