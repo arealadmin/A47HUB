@@ -45,13 +45,6 @@ scripts:Button("Launch Script", function()
 end)
 
 -- a:DestroyGui()
-player:Slider("Walk Speed", {
-    min = 16,
-    max = 200,
-    precise = true
-    }, function(value)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
-end)
 
 player:Toggle("Player ESP", function(on)
     playerESP = on
@@ -209,6 +202,14 @@ player:Toggle("No Clip", function(on)
     if on == true then
         noClip()
     end
+end)
+
+player:Slider("Walk Speed", {
+    min = 16,
+    max = 32,
+    precise = true
+    }, function(value)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
 
 if game.PlaceId == 9588998913 then
