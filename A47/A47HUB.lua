@@ -14,10 +14,196 @@ local library = loadstring(game:HttpGet(
     _G.PointerColor = Color3.fromRGB(60, 60, 60)
     _G.SliderColor = Color3.fromRGB(246, 20, 255)
     _G.DraggerCircleColor = Color3.fromRGB(246, 20, 255)
+    local scripts = w:CreateFolder("Script Menu")
     local player = w:CreateFolder("Main")
     local PID = game.Players.LocalPlayer.UserId
+    local scriptMenu
 -------------------------------------------------------------------- 
 --------------------------------------------------------------------
+
+ getgenv().playerESP = false
+
+scripts:Dropdown("Scripts", {"Dark Dex", "Simple Spy", "Infinite Yield", "V.G Hub", "Aim Bot", "The Survival Game"}, true,
+    function(script) -- true/false, replaces the current title "Dropdown" with the option that t
+       scriptMenu = script;
+    end)
+
+scripts:Button("Launch Script", function()
+	if scriptMenu == "Dark Dex" then
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+    elseif scriptMenu == "Simple Spy" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
+    elseif scriptMenu == "Infinite Yield" then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
+    elseif scriptMenu == "V.G Hub" then
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/V.Ghub'))()
+    elseif scriptMenu == "Aim Bot" then
+        aimBOT()
+    elseif scriptMenu == "The Survival Game" then
+        loadstring(game:HttpGet("https://github.com/joeengo/exploiting/blob/main/tsg.lua?raw=true", true))()
+    end
+end)
+
+-- a:DestroyGui()
+player:Slider("Walk Speed", {
+    min = 16,
+    max = 200,
+    precise = true
+    }, function(value)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+end)
+
+player:Toggle("Player ESP", function(on)
+    playerESP = on
+    if on == true then
+        toggleESP()
+    end
+end)
+
+function toggleESP()
+    spawn(function()
+        if playerESP == true then
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+
+
+function playerESPP()
+
+    local Highlight = Instance.new("Highlight")
+        Highlight.Name = "Highlight"
+        Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+        --Highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+        Highlight.FillTransparency = 0.8
+        Highlight.OutlineTransparency = 0
+	local namegui = Instance.new("BillboardGui")	
+		namegui.Size = UDim2.new(0,120,0,40)
+		namegui.SizeOffset = Vector2.new(0,0.5)
+		namegui.AlwaysOnTop = true
+        namegui.ClipsDescendants = true
+        namegui.LightInfluence = 1
+		namegui.Name = "Name"
+        namegui.StudsOffset = Vector3.new(0,0,0)
+        namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	local text = Instance.new("TextLabel", namegui)
+		text.Text = "Player"
+		--text.TextColor3 = Color3.fromRGB(255, 0, 0)
+        text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+        text.TextStrokeTransparency = 0.5
+		text.TextTransparency = 0.25
+		text.BackgroundTransparency = 1
+		text.TextScaled = false
+		text.Size = UDim2.new(1,0,1,0)
+        text.TextSize = 16
+		text.Font = Enum.Font.GothamSemibold
+		text.Name = "Text"
+    for i,v in pairs(Players:GetChildren()) do
+  --  repeat wait() until v.Character
+        if v.Team then
+        local Color = v.Team.TeamColor.Color
+        local R,G,B
+        R = Color.R * 255
+        G = Color.G * 255
+        B = Color.B * 255
+        text.TextColor3 = Color3.fromRGB(R,G,B)
+        Highlight.OutlineColor = Color3.fromRGB(R,G,B)
+        else
+        text.TextColor3 = Color3.fromRGB(0,255,0) --white/green players are not on a team
+        Highlight.OutlineColor = Color3.fromRGB(255,255,255)
+    end
+        if v.Character and v.Character:FindFirstChild("Head") then
+            if not v.Character.Head:FindFirstChild("playerName") and v ~= game.Players.LocalPlayer then
+                local esp = namegui:Clone()
+                esp.Name = "playerName"
+                esp:FindFirstChild("Text").Text = v.Name
+                esp.Parent = v.Character:FindFirstChild("Head")
+            end
+            if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and v.Character.Head:FindFirstChild("playerName") then
+                local HighlightClone = Highlight:Clone()
+                HighlightClone.Adornee = v.Character
+                HighlightClone.Parent = v.Character:FindFirstChild("HumanoidRootPart")
+                HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                HighlightClone.Name = "Highlight"
+            end
+        end
+    end
+end
+
+RunService.Heartbeat:Connect(function()
+	playerESPP()
+end)
+          
+        end
+    end)
+end
+--------------------------------------------------------------------------
+function aimBOT()
+    local AimPart = "Head"
+    local Sens = 0
+    local Radius = 70
+    local TweenService = game:GetService("TweenService")
+    local RunService = game:GetService("RunService")
+    local UIS = game:GetService("UserInputService")
+    local Camera = game.Workspace.CurrentCamera
+    local Players = game:GetService("Players")
+    local Player = Players.LocalPlayer    
+    
+    
+function getClosest()
+    local closestPlayer = nil
+    local closesDist = Radius
+    for i,v in pairs(Players:GetChildren()) do
+        if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v.Team and v.Character.Humanoid.Health > 0 and v.Team ~= Player.Team then
+            local Screen = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+            local Dist = (Vector2.new(UIS:GetMouseLocation().X,UIS:GetMouseLocation().Y) - Vector2.new(Screen.X, Screen.Y)).magnitude
+            if Dist < closesDist then
+        --    closesDist = Dist
+            closestPlayer = v
+            end
+        end
+        if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and not v.Team and v.Character.Humanoid.Health > 0 and v ~= Player then
+            local Screen = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+            local Dist = (Vector2.new(UIS:GetMouseLocation().X,UIS:GetMouseLocation().Y) - Vector2.new(Screen.X, Screen.Y)).magnitude
+            if Dist < closesDist then
+      --      closesDist = Dist
+            closestPlayer = v
+            end
+        end
+    end
+   return closestPlayer
+end
+    
+    
+UIS.InputBegan:Connect(function(inp)
+    if inp.UserInputType == Enum.UserInputType.MouseButton2 then        
+        _G.aim = true
+        if _G.aim == false then
+            return
+        end
+    end
+end)
+    
+UIS.InputEnded:Connect(function(inp)
+    if inp.UserInputType == Enum.UserInputType.MouseButton2 then
+        _G.aim = false
+    end
+end)
+    
+game:GetService("RunService").RenderStepped:Connect(function()
+    if _G.aim == true and getClosest().Character:FindFirstChild(AimPart) then
+    TweenService:Create(Camera, TweenInfo.new(Sens, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(Camera.CFrame.Position, getClosest().Character[AimPart].Position)}):Play()
+    end
+end)
+
+
+end
+
+
+
+
+
+
+
+---------------------------------------------------------------------
 player:Toggle("No Clip", function(on)
     clipping = on
     if on == true then
@@ -25,12 +211,14 @@ player:Toggle("No Clip", function(on)
     end
 end)
 
-player:Toggle("Auto Proximity", function(on)
-    prox = on
+if game.PlaceId == 9588998913 then
+	player:Toggle("Auto Proximity", function(on)
+    	prox = on
     if on == true then
         autoProx()
-    end
-end)
+   		 end
+	end)
+end
 
 if game.PlaceId == 2693739238 then
     player:Button("Buy Pinks",function()     
