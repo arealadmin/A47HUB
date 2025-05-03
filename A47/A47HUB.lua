@@ -1,3 +1,10 @@
+local Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Aimbot-V3/main/src/Aimbot.lua"))()
+Aimbot.Load()
+
+ExunysDeveloperAimbot.Settings.TriggerKey = Enum.UserInputType.MouseButton2
+
+
+
 loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
 --------------------------------------------------------------------
 --------------------------------------------------------------------
