@@ -177,10 +177,10 @@ function toggleESP(enable) -- Added enable parameter
                     local Color = v.Team.TeamColor.Color
                     local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
                     nametext.TextColor3 = Color3.fromRGB(R, G, B)
-                    Highlight.OutlineColor = Color3.fromRGB(R, G, B)
+                   -- Highlight.OutlineColor = Color3.fromRGB(R, G, B)
                 else
                     nametext.TextColor3 = Color3.fromRGB(0, 255, 0)
-                    Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                   -- Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
                 end
 
                 if v.Character and v.Character:FindFirstChild("Head") then
