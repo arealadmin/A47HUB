@@ -218,14 +218,14 @@ function toggleESP(enable) -- Added enable parameter
                                          local healthPercentage = humanoid.Health / humanoid.MaxHealth
                                         healthTextLabel.Size = UDim2.new(healthPercentage, 0, 1, 0)
                                         if healthPercentage > 0.5 then
+                                            healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                                            Highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                                        elseif healthPercentage > 0.25 then
                                             healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
                                             Highlight.FillColor = Color3.fromRGB(255, 255, 0)
-                                        elseif healthPercentage > 0.25 then
-                                            healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                                            Highlight.FillColor = Color3.fromRGB(255, 0, 0)
                                         else
                                             healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                                            Highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                                            Highlight.FillColor = Color3.fromRGB(255, 0, 0)
                                         end
                                     end
                                 end
