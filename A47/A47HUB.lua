@@ -1,11 +1,3 @@
---[[ local Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Aimbot-V3/main/src/Aimbot.lua"))()
-Aimbot.Load()
-
-ExunysDeveloperAimbot.Settings.TriggerKey = Enum.UserInputType.MouseButton2
-ExunysDeveloperAimbot.FOVSettings.Radius = 60
-ExunysDeveloperAimbot.Settings.WallCheck = true
---]]
-
 loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -25,20 +17,22 @@ local library = loadstring(game:HttpGet(
     local scripts = w:CreateFolder("Script Menu")
     local player = w:CreateFolder("Main")
     local PID = game.Players.LocalPlayer.UserId
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
     local scriptMenu
 -------------------------------------------------------------------- 
 --------------------------------------------------------------------
 
  getgenv().playerESP = false
 
-scripts:Dropdown("Scripts", {"Remote Explorer", "Simple Spy", "Void Hub", "Aim Bot"}, true,
+scripts:Dropdown("Scripts", {"Dex", "Simple Spy", "Void Hub", "Aim Bot"}, true,
     function(script) -- true/false, replaces the current title "Dropdown" with the option that t
        scriptMenu = script;
     end)
 
 scripts:Button("Launch Script", function()
-	if scriptMenu == "Remote Explorer" then
-	loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Remote-Explorer-38352"))()
+	if scriptMenu == "Dex" then
+	    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Keyless-mobile-dex-17888"))()
     elseif scriptMenu == "Simple Spy" then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
     elseif scriptMenu == "Void Hub" then
@@ -50,7 +44,7 @@ scripts:Button("Launch Script", function()
     end
 end)
 
--- a:DestroyGui()     -- loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Remote-Explorer-38352"))()
+-- a:DestroyGui()
 
 player:Toggle("Player ESP", function(on)
     playerESP = on
@@ -74,76 +68,90 @@ player:Slider("Walk Speed", {
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
 
-function playerESPP()
-	
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
-    local Highlight = Instance.new("Highlight")
-        Highlight.Name = "Highlight"
-        Highlight.FillColor = Color3.fromRGB(255, 255, 255)
-        --Highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-        Highlight.FillTransparency = 0.6
-        Highlight.OutlineTransparency = 0
-	local namegui = Instance.new("BillboardGui")	
-		namegui.Size = UDim2.new(0,120,0,40)
-		namegui.SizeOffset = Vector2.new(0,0.5)
-		namegui.AlwaysOnTop = true
-        namegui.ClipsDescendants = true
-        namegui.LightInfluence = 1
-		namegui.Name = "Name"
-        namegui.StudsOffset = Vector3.new(0,0,0)
-        namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	local text = Instance.new("TextLabel", namegui)
-		text.Text = "Player"
-		--text.TextColor3 = Color3.fromRGB(255, 0, 0)
-        text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-        text.TextStrokeTransparency = 0.5
-		text.TextTransparency = 0.25
-		text.BackgroundTransparency = 1
-		text.TextScaled = false
-		text.Size = UDim2.new(1,0,1,0)
-        text.TextSize = 16
-		text.Font = Enum.Font.GothamSemibold
-		text.Name = "Text"
-    for i,v in pairs(Players:GetChildren()) do
-  --  repeat wait() until v.Character
-        if v.Team then
-        local Color = v.Team.TeamColor.Color
-        local R,G,B
-        R = Color.R * 255
-        G = Color.G * 255
-        B = Color.B * 255
-        text.TextColor3 = Color3.fromRGB(R,G,B)
-        Highlight.OutlineColor = Color3.fromRGB(R,G,B)
-        else
-        text.TextColor3 = Color3.fromRGB(0,255,0) --white/green players are not on a team
-        Highlight.OutlineColor = Color3.fromRGB(255,255,255)
-    end
-        if v.Character and v.Character:FindFirstChild("Head") then
-            if not v.Character.Head:FindFirstChild("playerName") and v ~= game.Players.LocalPlayer then
-                local esp = namegui:Clone()
-                esp.Name = "playerName"
-                esp:FindFirstChild("Text").Text = v.Name
-                esp.Parent = v.Character:FindFirstChild("Head")
-            end
-            if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and v.Character.Head:FindFirstChild("playerName") then
-                local HighlightClone = Highlight:Clone()
-                HighlightClone.Adornee = v.Character
-                HighlightClone.Parent = v.Character:FindFirstChild("HumanoidRootPart")
-                HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                HighlightClone.Name = "Highlight"
-            end
-        end
-    end
-end
-
-RunService.Heartbeat:Connect(function()
-	playerESPP()
+player:Button("TP Tool",function()
+    giveTPtool()
 end)
-          
+
+player:Button("Get Passes",function()     
+    GetPasses()
+end)
+
+player:Button("Rejoin",function()     
+    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
+end)
+
+function toggleESP()
+     spawn(function()
+         if playerESP == true then
+
+    function playerESPP()
+
+        local Highlight = Instance.new("Highlight")
+            Highlight.Name = "Highlight"
+            Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+            --Highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+            Highlight.FillTransparency = 0.6
+            Highlight.OutlineTransparency = 0
+        local namegui = Instance.new("BillboardGui")	
+            namegui.Size = UDim2.new(0,120,0,40)
+            namegui.SizeOffset = Vector2.new(0,0.5)
+            namegui.AlwaysOnTop = true
+            namegui.ClipsDescendants = true
+            namegui.LightInfluence = 1
+            namegui.Name = "Name"
+            namegui.StudsOffset = Vector3.new(0,0,0)
+            namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        local text = Instance.new("TextLabel", namegui)
+            text.Text = "Player"
+            --text.TextColor3 = Color3.fromRGB(255, 0, 0)
+            text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+            text.TextStrokeTransparency = 0.5
+            text.TextTransparency = 0.25
+            text.BackgroundTransparency = 1
+            text.TextScaled = false
+            text.Size = UDim2.new(1,0,1,0)
+            text.TextSize = 16
+            text.Font = Enum.Font.GothamSemibold
+            text.Name = "Text"
+        for i,v in pairs(Players:GetChildren()) do
+    --  repeat wait() until v.Character
+            if v.Team then
+            local Color = v.Team.TeamColor.Color
+            local R,G,B
+            R = Color.R * 255
+            G = Color.G * 255
+            B = Color.B * 255
+            text.TextColor3 = Color3.fromRGB(R,G,B)
+            Highlight.OutlineColor = Color3.fromRGB(R,G,B)
+            else
+            text.TextColor3 = Color3.fromRGB(0,255,0) --white/green players are not on a team
+            Highlight.OutlineColor = Color3.fromRGB(255,255,255)
         end
+            if v.Character and v.Character:FindFirstChild("Head") then
+                if not v.Character.Head:FindFirstChild("playerName") and v ~= game.Players.LocalPlayer then
+                    local esp = namegui:Clone()
+                    esp.Name = "playerName"
+                    esp:FindFirstChild("Text").Text = v.Name
+                    esp.Parent = v.Character:FindFirstChild("Head")
+                end
+                if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and v.Character.Head:FindFirstChild("playerName") then
+                    local HighlightClone = Highlight:Clone()
+                    HighlightClone.Adornee = v.Character
+                    HighlightClone.Parent = v.Character:FindFirstChild("HumanoidRootPart")
+                    HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    HighlightClone.Name = "Highlight"
+                end
+            end
+        end
+    end
+
+    RunService.RenderStepped:Connect(function()
+	    playerESPP()
     end)
-end
+
+       end
+    end)
+end     
 --------------------------------------------------------------------------
 ---------------------------------------------------------------------
 if game.PlaceId == 9588998913 then
@@ -164,19 +172,6 @@ if game.PlaceId == 2693739238 then
         SellPinks()
     end)
 end
-
-player:Button("TP Tool",function()
-    giveTPtool()
-end)
-
-if PID == 9382448 or 3663326476 then
-    player:Button("Get Passes",function()     
-     GetPasses()
-    end)
-end
-player:Button("Rejoin",function()     
-    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
-end)
 
 function noClip()
     spawn(function()
@@ -256,4 +251,3 @@ function GetPasses()
         game.Players.LocalPlayer.UserId = game:GetService("GroupService"):GetGroupInfoAsync(game.CreatorId).Owner.Id
     end
 end
-
