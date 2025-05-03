@@ -117,9 +117,10 @@ function toggleESP(enable) -- Added enable parameter
 
             local Highlight = Instance.new("Highlight")
             Highlight.Name = "Highlight"
-            Highlight.FillColor = Color3.fromRGB(255, 255, 255)
-            Highlight.FillTransparency = 0.7
-            Highlight.OutlineTransparency = 0.9
+         --   Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+            Highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+            Highlight.FillTransparency = 0.6
+            Highlight.OutlineTransparency = 0.8
 
             local namegui = Instance.new("BillboardGui")
             namegui.Size = UDim2.new(0, 120, 0, 40)
