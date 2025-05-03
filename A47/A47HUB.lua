@@ -74,20 +74,15 @@ player:Slider("Walk Speed", {
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
 
-function toggleESP()
-    spawn(function()
-        if playerESP == true then
+function playerESPP()
+	
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
-
-
-function playerESPP()
-
     local Highlight = Instance.new("Highlight")
         Highlight.Name = "Highlight"
         Highlight.FillColor = Color3.fromRGB(255, 255, 255)
         --Highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-        Highlight.FillTransparency = 0.8
+        Highlight.FillTransparency = 0.6
         Highlight.OutlineTransparency = 0
 	local namegui = Instance.new("BillboardGui")	
 		namegui.Size = UDim2.new(0,120,0,40)
@@ -150,73 +145,6 @@ end)
     end)
 end
 --------------------------------------------------------------------------
-function aimBOT()
-    local AimPart = "Head"
-    local Sens = 0
-    local Radius = 70
-    local TweenService = game:GetService("TweenService")
-    local RunService = game:GetService("RunService")
-    local UIS = game:GetService("UserInputService")
-    local Camera = game.Workspace.CurrentCamera
-    local Players = game:GetService("Players")
-    local Player = Players.LocalPlayer    
-    
-    
-function getClosest()
-    local closestPlayer = nil
-    local closesDist = Radius
-    for i,v in pairs(Players:GetChildren()) do
-        if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v.Team and v.Character.Humanoid.Health > 0 and v.Team ~= Player.Team then
-            local Screen = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
-            local Dist = (Vector2.new(UIS:GetMouseLocation().X,UIS:GetMouseLocation().Y) - Vector2.new(Screen.X, Screen.Y)).magnitude
-            if Dist < closesDist then
-        --    closesDist = Dist
-            closestPlayer = v
-            end
-        end
-        if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and not v.Team and v.Character.Humanoid.Health > 0 and v ~= Player then
-            local Screen = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
-            local Dist = (Vector2.new(UIS:GetMouseLocation().X,UIS:GetMouseLocation().Y) - Vector2.new(Screen.X, Screen.Y)).magnitude
-            if Dist < closesDist then
-      --      closesDist = Dist
-            closestPlayer = v
-            end
-        end
-    end
-   return closestPlayer
-end
-    
-    
-UIS.InputBegan:Connect(function(inp)
-    if inp.UserInputType == Enum.UserInputType.MouseButton2 then        
-        _G.aim = true
-        if _G.aim == false then
-            return
-        end
-    end
-end)
-    
-UIS.InputEnded:Connect(function(inp)
-    if inp.UserInputType == Enum.UserInputType.MouseButton2 then
-        _G.aim = false
-    end
-end)
-    
-game:GetService("RunService").RenderStepped:Connect(function()
-    if _G.aim == true and getClosest().Character:FindFirstChild(AimPart) then
-    TweenService:Create(Camera, TweenInfo.new(Sens, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(Camera.CFrame.Position, getClosest().Character[AimPart].Position)}):Play()
-    end
-end)
-
-
-end
-
-
-
-
-
-
-
 ---------------------------------------------------------------------
 if game.PlaceId == 9588998913 then
 	player:Toggle("Auto Proximity", function(on)
