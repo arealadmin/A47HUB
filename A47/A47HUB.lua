@@ -117,7 +117,7 @@ function toggleESP(enable) -- Added enable parameter
 
             local Highlight = Instance.new("Highlight")
             Highlight.Name = "Highlight"
-         -  Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+         --  Highlight.FillColor = Color3.fromRGB(255, 255, 255)
             Highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
             Highlight.FillTransparency = 0.6
             Highlight.OutlineTransparency = 0.5
