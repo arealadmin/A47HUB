@@ -117,8 +117,8 @@ function toggleESP(enable) -- Added enable parameter
 
             local Highlight = Instance.new("Highlight")
             Highlight.Name = "Highlight"
-            Highlight.FillColor = Color3.fromRGB(255, 255, 255)
-            Highlight.FillTransparency = 0.6
+          --  Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+            Highlight.FillTransparency = 0.7
             Highlight.OutlineTransparency = 0
 
             local namegui = Instance.new("BillboardGui")
@@ -218,10 +218,13 @@ function toggleESP(enable) -- Added enable parameter
                                         healthTextLabel.Size = UDim2.new(healthPercentage, 0, 1, 0)
                                         if healthPercentage > 0.5 then
                                             healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                                            Highlight.FillColor = Color3.fromRGB(0, 255, 255)
                                         elseif healthPercentage > 0.25 then
                                             healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+                                            Highlight.FillColor = Color3.fromRGB(255, 255, 0)
                                         else
                                             healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                                            Highlight.FillColor = Color3.fromRGB(255, 0, 0)
                                         end
                                     end
                                 end
