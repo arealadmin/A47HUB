@@ -45,7 +45,8 @@ scripts:Button("Launch Script", function()
         loadstring(game:HttpGet('https://rawscripts.net/raw/BlockSpin-Void-Hub-Combat-Script-V2-37572'))()
 	print("Void Hub Key: AMDGLEID")
     elseif scriptMenu == "Aim Bot" then
-        aimBOT()
+       -- aimBOT()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/Main.lua"))()
     end
 end)
 
