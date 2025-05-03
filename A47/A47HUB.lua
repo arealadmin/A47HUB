@@ -2,7 +2,8 @@ local Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys
 Aimbot.Load()
 
 ExunysDeveloperAimbot.Settings.TriggerKey = Enum.UserInputType.MouseButton2
-
+ExunysDeveloperAimbot.FOVSettings.Radius = 60
+ExunysDeveloperAimbot.Settings.WallCheck = true
 
 
 loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
