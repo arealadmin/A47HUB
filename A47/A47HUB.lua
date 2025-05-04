@@ -153,8 +153,8 @@ function toggleESP(enable)
 
         local healthtext = Instance.new("TextLabel", combinedGUI) -- HealthText is now inside combinedGUI
         healthtext.Text = "Player 100/100" -- Default Text
-        healthtext.TextColor3 = Color3.fromRGB(0, 0, 0) -- Changed to black
-        healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        healthtext.TextColor3 = Color3.fromRGB(0, 0, 0) -- Changed to white
+        healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Added black outline
         healthtext.TextTransparency = 0
         healthtext.BackgroundTransparency = 0.5
         healthtext.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
@@ -175,9 +175,9 @@ function toggleESP(enable)
                 if v.Team then
                     local Color = v.Team.TeamColor.Color
                     local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
-                   -- healthtext.TextColor3 = Color3.fromRGB(R, G, B)
+                    -- healthtext.TextColor3 = Color3.fromRGB(R, G, B)
                 else
-                   -- healthtext.TextColor3 = Color3.fromRGB(0, 255, 0)
+                    -- healthtext.TextColor3 = Color3.fromRGB(0, 255, 0)
                 end
 
                 if v.Character and v.Character:FindFirstChild("Head") then
@@ -189,7 +189,7 @@ function toggleESP(enable)
                         local combinedGUIClone = combinedGUI:Clone()
                         combinedGUIClone.Name = "Combined"
                         combinedGUIClone.Parent = head
-                        v.Character.combinedGui = combinedGUIClone; -- store combined gui
+                        --v.Character.combinedGui = combinedGUIClone; -- Removed this line
                     end
 
                     if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and combined then
@@ -223,7 +223,7 @@ function toggleESP(enable)
                     local combinedGUIClone = combinedGUI:Clone()
                     combinedGUIClone.Name = "Combined"
                     combinedGUIClone.Parent = head
-                    character.combinedGui = combinedGUIClone
+                    --character.combinedGui = combinedGUIClone
                 end
 
                 if not character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") then
@@ -256,6 +256,7 @@ function toggleESP(enable)
             espConnections.playerAddedConnection = nil
         end
         if espConnections.characterAddedConnection then
+            espConnections.characterAddedConnection:Disconnect()
             espConnections.characterAddedConnection = nil
         end
         if espConnections then
