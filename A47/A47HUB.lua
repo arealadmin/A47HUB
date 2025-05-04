@@ -37,6 +37,7 @@ local scripts = w:CreateFolder("Script Menu")
 local player = w:CreateFolder("Main")
 local playerESP = false -- Moved global variable here for consistency
 local clipping = false
+local camera = workspace.CurrentCamera
 
 ----------------------------------------------------------------------
 -- Script Menu Dropdown
@@ -107,17 +108,16 @@ end)
 ----------------------------------------------------------------------
 -- ESP Function
 ----------------------------------------------------------------------
-local function updateHealthBar(character, combinedGUI) -- Pass the combinedGUI
+local function updateHealthBar(character, combinedGUI)
     if combinedGUI then
         local healthTextLabel = combinedGUI:FindFirstChild("HealthText")
         if healthTextLabel then
             local humanoid = character:FindFirstChild("Humanoid")
             if humanoid then
-                -- Changed:  Make sure v is defined.
-                local playerName = character.Name -- Get the player's name
+                local playerName = character.Name
                 healthTextLabel.Text = playerName .. " " .. math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
                 local healthPercentage = humanoid.Health / humanoid.MaxHealth
-                healthTextLabel.Size = UDim2.new(healthPercentage, 0, 0.5, 1) -- Adjust size as needed
+                healthTextLabel.Size = UDim2.new(healthPercentage, 0, 0.5, 1)
                 if healthPercentage > 0.5 then
                     healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
                 elseif healthPercentage > 0.25 then
@@ -132,7 +132,9 @@ end
 
 function toggleESP(enable)
     if enable then
-        if espConnections.espLoop then return end
+        if espConnections.espLoop then
+            return
+        end
 
         local Highlight = Instance.new("Highlight")
         Highlight.Name = "Highlight"
@@ -141,25 +143,25 @@ function toggleESP(enable)
         Highlight.FillTransparency = 0.6
         Highlight.OutlineTransparency = 0.5
 
-        local combinedGUI = Instance.new("BillboardGui") -- Create one combined GUI
-        combinedGUI.Size = UDim2.new(0, 120, 0, 40) -- Adjust size as needed
-        combinedGUI.SizeOffset = Vector2.new(0, 0.5)
+        local combinedGUI = Instance.new("BillboardGui")
+        combinedGUI.Size = UDim2.new(0, 180, 0, 60)
         combinedGUI.AlwaysOnTop = true
         combinedGUI.ClipsDescendants = true
         combinedGUI.LightInfluence = 1
-        combinedGUI.Name = "Combined" -- Name it
-        combinedGUI.StudsOffset = Vector3.new(0, 0, 0)
+        combinedGUI.Name = "Combined"
+        combinedGUI.StudsOffset = Vector3.new(0, 2, 0) -- Increased Y offset
         combinedGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        combinedGUI.Active = true
 
-        local healthtext = Instance.new("TextLabel", combinedGUI) -- HealthText is now inside combinedGUI
-        healthtext.Text = "Player 100/100" -- Default Text
-        healthtext.TextColor3 = Color3.fromRGB(0, 0, 0) -- Changed to white
-        healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Added black outline
+        local healthtext = Instance.new("TextLabel", combinedGUI)
+        healthtext.Text = "Player 100/100"
+        healthtext.TextColor3 = Color3.fromRGB(0, 0, 0)
+        healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         healthtext.TextTransparency = 0
         healthtext.BackgroundTransparency = 0.5
         healthtext.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
         healthtext.TextScaled = true
-        healthtext.Size = UDim2.new(1, 0, 0.5, 1) -- Size for health portion.  X = 1, Y = 0.5
+        healthtext.Size = UDim2.new(1, 0, 0.5, 1)
         healthtext.TextSize = 12
         healthtext.Font = Enum.Font.Gotham
         healthtext.Name = "HealthText"
@@ -168,28 +170,21 @@ function toggleESP(enable)
         healthtext.TextXAlignment = Enum.TextXAlignment.Center
         healthtext.TextYAlignment = Enum.TextYAlignment.Center
 
-
-
         local function playerESPP()
             for i, v in pairs(Players:GetChildren()) do
                 if v.Team then
                     local Color = v.Team.TeamColor.Color
                     local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
-                    -- healthtext.TextColor3 = Color3.fromRGB(R, G, B)
-                else
-                    -- healthtext.TextColor3 = Color3.fromRGB(0, 255, 0)
                 end
 
                 if v.Character and v.Character:FindFirstChild("Head") then
                     local head = v.Character.Head
-
                     local combined = head:FindFirstChild("Combined")
 
                     if not combined and v ~= LocalPlayer then
                         local combinedGUIClone = combinedGUI:Clone()
                         combinedGUIClone.Name = "Combined"
                         combinedGUIClone.Parent = head
-                        --v.Character.combinedGui = combinedGUIClone; -- Removed this line
                     end
 
                     if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and combined then
@@ -202,10 +197,19 @@ function toggleESP(enable)
 
                     local humanoid = v.Character:FindFirstChild("Humanoid")
                     if humanoid then
-                        updateHealthBar(v.Character, combined) -- Pass combinedGUI
+                        updateHealthBar(v.Character, combined)
+
+                        -- Calculate distance and adjust GUI size
+                        local distance = (LocalPlayer.Character.HumanoidRootPart.Position - v.Character.Head.Position).Magnitude
+                        local scale = 40 / (distance + 40)
+                        if combined then
+                            combined.Size = UDim2.new(0, 180 * scale, 0, 60 * scale)
+                            combined.SizeOffset = Vector2.new(0, 0)
+                        end
+
                         if not espConnections[v.Name] then
                             espConnections[v.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                                updateHealthBar(v.Character, combined) -- Pass combinedGUI
+                                updateHealthBar(v.Character, combined)
                             end)
                         end
                     end
@@ -217,13 +221,12 @@ function toggleESP(enable)
             espConnections.characterAddedConnection = player.CharacterAdded:Connect(function(character)
                 local head = character:WaitForChild("Head")
                 local humanoid = character:FindFirstChild("Humanoid")
-
                 local combined = head:FindFirstChild("Combined")
+
                 if not combined then
                     local combinedGUIClone = combinedGUI:Clone()
                     combinedGUIClone.Name = "Combined"
                     combinedGUIClone.Parent = head
-                    --character.combinedGui = combinedGUIClone
                 end
 
                 if not character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") then
@@ -233,11 +236,12 @@ function toggleESP(enable)
                     HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                     HighlightClone.Name = "Highlight"
                 end
+
                 if humanoid then
-                    updateHealthBar(character, combined) -- Pass combinedGUI
+                    updateHealthBar(character, combined)
                     if not espConnections[player.Name] then
                         espConnections[player.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                            updateHealthBar(character, combined) -- Pass combinedGUI
+                            updateHealthBar(character, combined)
                         end)
                     end
                 end
@@ -304,7 +308,7 @@ if game.PlaceId == 9588998913 then
                     end
                 end
             end
-            espConnections.autoProxConnection = RunService.Heartbeat:Connect(autoProx) -- Use Heartbeat
+            espConnections.autoProxConnection = RunService.Heartbeat:Connect(autoProx)
         elseif espConnections.autoProxConnection then
             espConnections.autoProxConnection:Disconnect()
             espConnections.autoProxConnection = nil
@@ -341,7 +345,7 @@ function noClip()
     spawn(function()
         while clipping do
             for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-                if v:IsA('BasePart') and v.CanCollide then -- Removed v.Name check, potential issue?
+                if v:IsA('BasePart') and v.CanCollide then
                     v.CanCollide = false
                 end
             end
@@ -359,7 +363,7 @@ function giveTPtool()
     for _, v in pairs(backpack:GetChildren()) do
         if v.Name == "TP Tool" then
             v:Destroy()
-            break -- Exit loop after destroying
+            break
         end
     end
 
@@ -389,3 +393,4 @@ function GetPasses()
         LocalPlayer.UserId = groupInfo.Owner.Id
     end
 end
+
