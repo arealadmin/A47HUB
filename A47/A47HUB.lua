@@ -107,16 +107,17 @@ end)
 ----------------------------------------------------------------------
 -- ESP Function
 ----------------------------------------------------------------------
-local function updateHealthBar(character)
-    local characterHealthBar = character:FindFirstChild("Head"):FindFirstChild("playerHealthBar")
-    if characterHealthBar then
-        local healthTextLabel = characterHealthBar:FindFirstChild("HealthText")
+local function updateHealthBar(character, combinedGUI) -- Pass the combinedGUI
+    if combinedGUI then
+        local healthTextLabel = combinedGUI:FindFirstChild("HealthText")
         if healthTextLabel then
             local humanoid = character:FindFirstChild("Humanoid")
             if humanoid then
-                healthTextLabel.Text = math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
+                -- Changed:  Make sure v is defined.
+                local playerName = character.Name -- Get the player's name
+                healthTextLabel.Text = playerName .. " " .. math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
                 local healthPercentage = humanoid.Health / humanoid.MaxHealth
-                healthTextLabel.Size = UDim2.new(healthPercentage, 0, 1, 0)
+                healthTextLabel.Size = UDim2.new(healthPercentage, 0, 0.5, 1) -- Adjust size as needed
                 if healthPercentage > 0.5 then
                     healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
                 elseif healthPercentage > 0.25 then
@@ -140,48 +141,25 @@ function toggleESP(enable)
         Highlight.FillTransparency = 0.6
         Highlight.OutlineTransparency = 0.5
 
-        local namegui = Instance.new("BillboardGui")
-        namegui.Size = UDim2.new(0, 120, 0, 40)
-        namegui.SizeOffset = Vector2.new(0, 0.5)
-        namegui.AlwaysOnTop = true
-        namegui.ClipsDescendants = true
-        namegui.LightInfluence = 1
-        namegui.Name = "Name"
-        namegui.StudsOffset = Vector3.new(0, 0, 0)
-        namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        local combinedGUI = Instance.new("BillboardGui") -- Create one combined GUI
+        combinedGUI.Size = UDim2.new(0, 120, 0, 40) -- Adjust size as needed
+        combinedGUI.SizeOffset = Vector2.new(0, 0.5)
+        combinedGUI.AlwaysOnTop = true
+        combinedGUI.ClipsDescendants = true
+        combinedGUI.LightInfluence = 1
+        combinedGUI.Name = "Combined" -- Name it
+        combinedGUI.StudsOffset = Vector3.new(0, 0, 0)
+        combinedGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-        local healthgui = Instance.new("BillboardGui")
-        healthgui.Size = UDim2.new(0, 120, 0, 20)
-        healthgui.SizeOffset = Vector2.new(0, -2.5)
-        healthgui.AlwaysOnTop = true
-        healthgui.ClipsDescendants = true
-        healthgui.LightInfluence = 0
-        healthgui.Name = "HealthBar"
-        healthgui.StudsOffset = Vector3.new(0, -2, 0)
-        healthgui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-        local nametext = Instance.new("TextLabel", namegui)
-        nametext.Text = "Player"
-        nametext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-        nametext.TextStrokeTransparency = 0.5
-        nametext.TextTransparency = 0.25
-        nametext.BackgroundTransparency = 1
-        nametext.TextScaled = false
-        nametext.Size = UDim2.new(1, 0, 1, 0)
-        nametext.TextSize = 16
-        nametext.Font = Enum.Font.GothamSemibold
-        nametext.Name = "Text"
-
-        local healthtext = Instance.new("TextLabel", healthgui)
-        healthtext.Text = "100/100"
-        healthtext.TextColor3 = Color3.fromRGB(255, 255, 255)
+        local healthtext = Instance.new("TextLabel", combinedGUI) -- HealthText is now inside combinedGUI
+        healthtext.Text = "Player 100/100" -- Default Text
+        healthtext.TextColor3 = Color3.fromRGB(0, 0, 0) -- Changed to black
         healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-        healthtext.TextStrokeTransparency = 0.5
         healthtext.TextTransparency = 0
         healthtext.BackgroundTransparency = 0.5
         healthtext.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-        healthtext.TextScaled = false
-        healthtext.Size = UDim2.new(1, 0, 1, 0)
+        healthtext.TextScaled = true
+        healthtext.Size = UDim2.new(1, 0, 0.5, 1) -- Size for health portion.  X = 1, Y = 0.5
         healthtext.TextSize = 12
         healthtext.Font = Enum.Font.Gotham
         healthtext.Name = "HealthText"
@@ -190,32 +168,31 @@ function toggleESP(enable)
         healthtext.TextXAlignment = Enum.TextXAlignment.Center
         healthtext.TextYAlignment = Enum.TextYAlignment.Center
 
+
+
         local function playerESPP()
             for i, v in pairs(Players:GetChildren()) do
                 if v.Team then
                     local Color = v.Team.TeamColor.Color
                     local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
-                    nametext.TextColor3 = Color3.fromRGB(R, G, B)
+                   -- healthtext.TextColor3 = Color3.fromRGB(R, G, B)
                 else
-                    nametext.TextColor3 = Color3.fromRGB(0, 255, 0)
+                   -- healthtext.TextColor3 = Color3.fromRGB(0, 255, 0)
                 end
 
                 if v.Character and v.Character:FindFirstChild("Head") then
                     local head = v.Character.Head
 
-                    if not head:FindFirstChild("playerName") and v ~= LocalPlayer then
-                        local esp = namegui:Clone()
-                        local healthbar = healthgui:Clone()
-                        esp.Name = "playerName"
-                        healthbar.Name = "playerHealthBar"
-                        esp:FindFirstChild("Text").Text = v.Name
-                        healthbar:FindFirstChild("HealthText").Text = v.Character:FindFirstChild("Humanoid").Health
-                        healthbar.Parent = head
-                        esp.Parent = head
-                        v.Character.healthBar = healthbar
+                    local combined = head:FindFirstChild("Combined")
+
+                    if not combined and v ~= LocalPlayer then
+                        local combinedGUIClone = combinedGUI:Clone()
+                        combinedGUIClone.Name = "Combined"
+                        combinedGUIClone.Parent = head
+                        v.Character.combinedGui = combinedGUIClone; -- store combined gui
                     end
 
-                    if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and head:FindFirstChild("playerName") then
+                    if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and combined then
                         local HighlightClone = Highlight:Clone()
                         HighlightClone.Adornee = v.Character
                         HighlightClone.Parent = v.Character.HumanoidRootPart
@@ -225,10 +202,10 @@ function toggleESP(enable)
 
                     local humanoid = v.Character:FindFirstChild("Humanoid")
                     if humanoid then
-                        updateHealthBar(v.Character)
+                        updateHealthBar(v.Character, combined) -- Pass combinedGUI
                         if not espConnections[v.Name] then
                             espConnections[v.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                                updateHealthBar(v.Character)
+                                updateHealthBar(v.Character, combined) -- Pass combinedGUI
                             end)
                         end
                     end
@@ -241,18 +218,12 @@ function toggleESP(enable)
                 local head = character:WaitForChild("Head")
                 local humanoid = character:FindFirstChild("Humanoid")
 
-                if not head:FindFirstChild("playerName") then
-                    local esp = namegui:Clone()
-                    esp.Name = "playerName"
-                    esp:FindFirstChild("Text").Text = player.Name
-                    esp.Parent = head
-                end
-                if not head:FindFirstChild("playerHealthBar") then
-                    local healthbar = healthgui:Clone()
-                    healthbar.Name = "playerHealthBar"
-                    healthbar:FindFirstChild("HealthText").Text = humanoid.Health
-                    healthbar.Parent = head
-                    character.healthBar = healthbar
+                local combined = head:FindFirstChild("Combined")
+                if not combined then
+                    local combinedGUIClone = combinedGUI:Clone()
+                    combinedGUIClone.Name = "Combined"
+                    combinedGUIClone.Parent = head
+                    character.combinedGui = combinedGUIClone
                 end
 
                 if not character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") then
@@ -263,10 +234,10 @@ function toggleESP(enable)
                     HighlightClone.Name = "Highlight"
                 end
                 if humanoid then
-                    updateHealthBar(character)
+                    updateHealthBar(character, combined) -- Pass combinedGUI
                     if not espConnections[player.Name] then
                         espConnections[player.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                            updateHealthBar(character)
+                            updateHealthBar(character, combined) -- Pass combinedGUI
                         end)
                     end
                 end
@@ -285,7 +256,6 @@ function toggleESP(enable)
             espConnections.playerAddedConnection = nil
         end
         if espConnections.characterAddedConnection then
-            espConnections.characterAddedConnection:Disconnect()
             espConnections.characterAddedConnection = nil
         end
         if espConnections then
@@ -301,13 +271,9 @@ function toggleESP(enable)
             if player.Character then
                 local head = player.Character:FindFirstChild("Head")
                 if head then
-                    local nameLabel = head:FindFirstChild("playerName")
-                    local healthBar = head:FindFirstChild("playerHealthBar")
-                    if nameLabel then
-                        nameLabel:Destroy()
-                    end
-                    if healthBar then
-                        healthBar:Destroy()
+                    local combined = head:FindFirstChild("Combined")
+                    if combined then
+                        combined:Destroy()
                     end
                 end
                 local highlight = player.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight")
