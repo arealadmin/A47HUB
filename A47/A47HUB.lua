@@ -108,7 +108,7 @@ end)
 ----------------------------------------------------------------------
 -- ESP Function
 ----------------------------------------------------------------------
-local function updateHealthBar(character, combinedGUI)
+local function updateHealthBar(character, combinedGUI, showHighlights) -- Added showHighlights
     if combinedGUI then
         local healthTextLabel = combinedGUI:FindFirstChild("HealthText")
         if healthTextLabel then
@@ -117,13 +117,20 @@ local function updateHealthBar(character, combinedGUI)
                 local playerName = character.Name
                 healthTextLabel.Text = playerName .. " " .. math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
                 local healthPercentage = humanoid.Health / humanoid.MaxHealth
+
+                -- Gradual color change for health bar
+                local startColor = Color3.fromRGB(0, 255, 0)
+                local endColor = Color3.fromRGB(255, 0, 0)
+                local healthColor = startColor:Lerp(endColor, 1 - healthPercentage)
+                healthTextLabel.BackgroundColor3 = healthColor
+
                 healthTextLabel.Size = UDim2.new(healthPercentage, 0, 0.5, 1)
-                if healthPercentage > 0.5 then
-                    healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                elseif healthPercentage > 0.25 then
-                    healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-                else
-                    healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+                if showHighlights and character ~= LocalPlayer.Character then -- Only apply to other players and if showHighlights is true
+                    local highlight = character.HumanoidRootPart:FindFirstChild("Highlight")
+                    if highlight then
+                        highlight.FillColor = healthColor
+                    end
                 end
             end
         end
@@ -132,6 +139,7 @@ end
 
 function toggleESP(enable)
     if enable then
+        local showHighlights = #Players:GetPlayers() <= 32
         if espConnections.espLoop then
             return
         end
@@ -149,7 +157,7 @@ function toggleESP(enable)
         combinedGUI.ClipsDescendants = true
         combinedGUI.LightInfluence = 1
         combinedGUI.Name = "Combined"
-        combinedGUI.StudsOffset = Vector3.new(0, 2, 0) -- Increased Y offset
+        combinedGUI.StudsOffset = Vector3.new(0, 0.5, 0)
         combinedGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         combinedGUI.Active = true
 
@@ -172,45 +180,48 @@ function toggleESP(enable)
 
         local function playerESPP()
             for i, v in pairs(Players:GetChildren()) do
-                if v.Team then
-                    local Color = v.Team.TeamColor.Color
-                    local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
-                end
-
-                if v.Character and v.Character:FindFirstChild("Head") then
-                    local head = v.Character.Head
-                    local combined = head:FindFirstChild("Combined")
-
-                    if not combined and v ~= LocalPlayer then
-                        local combinedGUIClone = combinedGUI:Clone()
-                        combinedGUIClone.Name = "Combined"
-                        combinedGUIClone.Parent = head
+                if v ~= LocalPlayer then
+                    if v.Team then
+                        local Color = v.Team.TeamColor.Color
+                        local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
                     end
 
-                    if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and combined then
-                        local HighlightClone = Highlight:Clone()
-                        HighlightClone.Adornee = v.Character
-                        HighlightClone.Parent = v.Character.HumanoidRootPart
-                        HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                        HighlightClone.Name = "Highlight"
-                    end
+                    if v.Character and v.Character:FindFirstChild("Head") then
+                        local head = v.Character.Head
+                        local combined = head:FindFirstChild("Combined")
+                        local highlight = v.Character.HumanoidRootPart:FindFirstChild("Highlight")
 
-                    local humanoid = v.Character:FindFirstChild("Humanoid")
-                    if humanoid then
-                        updateHealthBar(v.Character, combined)
-
-                        -- Calculate distance and adjust GUI size
-                        local distance = (LocalPlayer.Character.HumanoidRootPart.Position - v.Character.Head.Position).Magnitude
-                        local scale = 40 / (distance + 40)
-                        if combined then
-                            combined.Size = UDim2.new(0, 180 * scale, 0, 60 * scale)
-                            combined.SizeOffset = Vector2.new(0, 0)
+                        if not combined then
+                            local combinedGUIClone = combinedGUI:Clone()
+                            combinedGUIClone.Name = "Combined"
+                            combinedGUIClone.Parent = head
                         end
 
-                        if not espConnections[v.Name] then
-                            espConnections[v.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                                updateHealthBar(v.Character, combined)
-                            end)
+                        if not highlight and showHighlights then -- Apply highlight only when showHighlights is true
+                            local HighlightClone = Highlight:Clone()
+                            HighlightClone.Adornee = v.Character
+                            HighlightClone.Parent = v.Character.HumanoidRootPart
+                            HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            HighlightClone.Name = "Highlight"
+                            highlight = HighlightClone
+                        end
+
+                        local humanoid = v.Character:FindFirstChild("Humanoid")
+                        if humanoid then
+                            updateHealthBar(v.Character, combined, showHighlights) -- Pass showHighlights
+                            -- Calculate distance and adjust GUI size
+                            local distance = (LocalPlayer.Character.HumanoidRootPart.Position - v.Character.Head.Position).Magnitude
+                            local scale = 40 / (distance + 40)
+                            if combined then
+                                combined.Size = UDim2.new(0, 180 * scale, 0, 60 * scale)
+                                combined.SizeOffset = Vector2.new(0, 0)
+                            end
+
+                            if not espConnections[v.Name] then
+                                espConnections[v.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+                                    updateHealthBar(v.Character, combined, showHighlights) -- Pass showHighlights
+                                end)
+                            end
                         end
                     end
                 end
@@ -222,26 +233,28 @@ function toggleESP(enable)
                 local head = character:WaitForChild("Head")
                 local humanoid = character:FindFirstChild("Humanoid")
                 local combined = head:FindFirstChild("Combined")
+                local highlight = character.HumanoidRootPart:FindFirstChild("Highlight")
 
-                if not combined then
+                 if not combined then
                     local combinedGUIClone = combinedGUI:Clone()
                     combinedGUIClone.Name = "Combined"
                     combinedGUIClone.Parent = head
                 end
 
-                if not character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") then
+                if not highlight and showHighlights and character ~= LocalPlayer.Character then -- Apply only when showHighlights is true
                     local HighlightClone = Highlight:Clone()
                     HighlightClone.Adornee = character
                     HighlightClone.Parent = character.HumanoidRootPart
                     HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                     HighlightClone.Name = "Highlight"
+                    highlight = HighlightClone
                 end
 
                 if humanoid then
-                    updateHealthBar(character, combined)
+                    updateHealthBar(character, combined, showHighlights) -- Pass showHighlights
                     if not espConnections[player.Name] then
                         espConnections[player.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                            updateHealthBar(character, combined)
+                            updateHealthBar(character, combined, showHighlights) -- Pass showHighlights
                         end)
                     end
                 end
@@ -280,10 +293,6 @@ function toggleESP(enable)
                     if combined then
                         combined:Destroy()
                     end
-                end
-                local highlight = player.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight")
-                if highlight then
-                    highlight:Destroy()
                 end
             end
         end
