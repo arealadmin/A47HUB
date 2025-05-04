@@ -12,39 +12,46 @@ local w = library:CreateWindow("Kaspyrr Tools")
 ----------------------------------------------------------------------
 -- Global Color Definitions
 ----------------------------------------------------------------------
-_G.MainColor = Color3.fromRGB(18, 18, 18)
-_G.SecondaryColor = Color3.fromRGB(30, 30, 30)
-_G.TertiaryColor = Color3.fromRGB(50, 50, 50)
-_G.ButtonColor = Color3.fromRGB(60, 60, 60)
-_G.ButtonTextColor = Color3.fromRGB(176, 38, 255)
-_G.ArrowColor = Color3.fromRGB(25, 25, 112)
-_G.PointerColor = Color3.fromRGB(60, 60, 60)
-_G.SliderColor = Color3.fromRGB(246, 20, 255)
-_G.DraggerCircleColor = Color3.fromRGB(246, 20, 255)
+local MainColor = Color3.fromRGB(18, 18, 18)
+local SecondaryColor = Color3.fromRGB(30, 30, 30)
+local TertiaryColor = Color3.fromRGB(50, 50, 50)
+local ButtonColor = Color3.fromRGB(60, 60, 60)
+local ButtonTextColor = Color3.fromRGB(176, 38, 255)
+local ArrowColor = Color3.fromRGB(25, 25, 112)
+local PointerColor = Color3.fromRGB(60, 60, 60)
+local SliderColor = Color3.fromRGB(246, 20, 255)
+local DraggerCircleColor = Color3.fromRGB(246, 20, 255)
 
 ----------------------------------------------------------------------
 -- Service and Variable Declarations
 ----------------------------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local PID = game.Players.LocalPlayer.UserId
+local TeleportService = game:GetService("TeleportService") -- Added for Rejoin
+local GroupService = game:GetService("GroupService") -- Added for GetPasses
+local LocalPlayer = Players.LocalPlayer
+local PID = LocalPlayer.UserId
 local scriptMenu
 local espConnections = {} -- Store connections for later cleanup
-
-----------------------------------------------------------------------
--- Folder Creation
-----------------------------------------------------------------------
 local scripts = w:CreateFolder("Script Menu")
 local player = w:CreateFolder("Main")
-
-----------------------------------------------------------------------
--- Global Variable
-----------------------------------------------------------------------
-getgenv().playerESP = false
+local playerESP = false -- Moved global variable here for consistency
+local clipping = false
 
 ----------------------------------------------------------------------
 -- Script Menu Dropdown
 ----------------------------------------------------------------------
+local scriptUrls = {
+    Dex = "https://rawscripts.net/raw/Universal-Script-Keyless-mobile-dex-17888",
+    ["Simple Spy"] = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua",
+    ["Void Hub"] = 'https://rawscripts.net/raw/BlockSpin-Void-Hub-Combat-Script-V2-37572',
+    ["Aim Bot"] = "https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/Main.lua" -- Corrected key name
+}
+
+local scriptKeys = {
+    ["Void Hub"] = "AMDGLEID"
+}
+
 scripts:Dropdown("Scripts", {"Dex", "Simple Spy", "Void Hub", "Aim Bot"}, true, function(selectedScript)
     scriptMenu = selectedScript;
 end)
@@ -53,16 +60,11 @@ end)
 -- Launch Script Button
 ----------------------------------------------------------------------
 scripts:Button("Launch Script", function()
-    if scriptMenu == "Dex" then
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Keyless-mobile-dex-17888"))()
-    elseif scriptMenu == "Simple Spy" then
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
-    elseif scriptMenu == "Void Hub" then
-        loadstring(game:HttpGet('https://rawscripts.net/raw/BlockSpin-Void-Hub-Combat-Script-V2-37572'))()
-        print("Void Hub Key: AMDGLEID")
-    elseif scriptMenu == "Aim Bot" then
-        -- aimBOT() --removed for error
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/Main.lua"))()
+    if scriptMenu and scriptUrls[scriptMenu] then
+        loadstring(game:HttpGet(scriptUrls[scriptMenu]))()
+        if scriptKeys[scriptMenu] then
+            print(scriptKeys[scriptMenu])
+        end
     end
 end)
 
@@ -72,11 +74,7 @@ end)
 
 player:Toggle("Player ESP", function(on)
     playerESP = on
-    if on then
-        toggleESP(true) -- Pass true to indicate ESP should be turned ON
-    else
-        toggleESP(false) -- Pass false to indicate ESP should be turned OFF
-    end
+    toggleESP(on)
 end)
 
 player:Toggle("No Clip", function(on)
@@ -91,7 +89,7 @@ player:Slider("Walk Speed", {
     max = 32,
     precise = true
 }, function(value)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+    LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
 
 player:Button("TP Tool", function()
@@ -103,102 +101,120 @@ player:Button("Get Passes", function()
 end)
 
 player:Button("Rejoin", function()
-    game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
+    TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
 
 ----------------------------------------------------------------------
 -- ESP Function
 ----------------------------------------------------------------------
-function toggleESP(enable) -- Added enable parameter
+local function updateHealthBar(character)
+    local characterHealthBar = character:FindFirstChild("Head"):FindFirstChild("playerHealthBar")
+    if characterHealthBar then
+        local healthTextLabel = characterHealthBar:FindFirstChild("HealthText")
+        if healthTextLabel then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                healthTextLabel.Text = math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
+                local healthPercentage = humanoid.Health / humanoid.MaxHealth
+                healthTextLabel.Size = UDim2.new(healthPercentage, 0, 1, 0)
+                if healthPercentage > 0.5 then
+                    healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                elseif healthPercentage > 0.25 then
+                    healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+                else
+                    healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                end
+            end
+        end
+    end
+end
+
+function toggleESP(enable)
     if enable then
         if espConnections.espLoop then return end
+
+        local Highlight = Instance.new("Highlight")
+        Highlight.Name = "Highlight"
+        Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+        Highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+        Highlight.FillTransparency = 0.6
+        Highlight.OutlineTransparency = 0.5
+
+        local namegui = Instance.new("BillboardGui")
+        namegui.Size = UDim2.new(0, 120, 0, 40)
+        namegui.SizeOffset = Vector2.new(0, 0.5)
+        namegui.AlwaysOnTop = true
+        namegui.ClipsDescendants = true
+        namegui.LightInfluence = 1
+        namegui.Name = "Name"
+        namegui.StudsOffset = Vector3.new(0, 0, 0)
+        namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+        local healthgui = Instance.new("BillboardGui")
+        healthgui.Size = UDim2.new(0, 120, 0, 20)
+        healthgui.SizeOffset = Vector2.new(0, -2.5)
+        healthgui.AlwaysOnTop = true
+        healthgui.ClipsDescendants = true
+        healthgui.LightInfluence = 0
+        healthgui.Name = "HealthBar"
+        healthgui.StudsOffset = Vector3.new(0, -2, 0)
+        healthgui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+        local nametext = Instance.new("TextLabel", namegui)
+        nametext.Text = "Player"
+        nametext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        nametext.TextStrokeTransparency = 0.5
+        nametext.TextTransparency = 0.25
+        nametext.BackgroundTransparency = 1
+        nametext.TextScaled = false
+        nametext.Size = UDim2.new(1, 0, 1, 0)
+        nametext.TextSize = 16
+        nametext.Font = Enum.Font.GothamSemibold
+        nametext.Name = "Text"
+
+        local healthtext = Instance.new("TextLabel", healthgui)
+        healthtext.Text = "100/100"
+        healthtext.TextColor3 = Color3.fromRGB(255, 255, 255)
+        healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        healthtext.TextStrokeTransparency = 0.5
+        healthtext.TextTransparency = 0
+        healthtext.BackgroundTransparency = 0.5
+        healthtext.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        healthtext.TextScaled = false
+        healthtext.Size = UDim2.new(1, 0, 1, 0)
+        healthtext.TextSize = 12
+        healthtext.Font = Enum.Font.Gotham
+        healthtext.Name = "HealthText"
+        healthtext.AnchorPoint = Vector2.new(0.5, 0.5)
+        healthtext.Position = UDim2.new(0.5, 0, 0.5, 0)
+        healthtext.TextXAlignment = Enum.TextXAlignment.Center
+        healthtext.TextYAlignment = Enum.TextYAlignment.Center
+
         local function playerESPP()
-            local Players = game:GetService("Players")
-
-            local Highlight = Instance.new("Highlight")
-            Highlight.Name = "Highlight"
-         --  Highlight.FillColor = Color3.fromRGB(255, 255, 255)
-            Highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
-            Highlight.FillTransparency = 0.6
-            Highlight.OutlineTransparency = 0.5
-
-            local namegui = Instance.new("BillboardGui")
-            namegui.Size = UDim2.new(0, 120, 0, 40)
-            namegui.SizeOffset = Vector2.new(0, 0.5)
-            namegui.AlwaysOnTop = true
-            namegui.ClipsDescendants = true
-            namegui.LightInfluence = 1
-            namegui.Name = "Name"
-            namegui.StudsOffset = Vector3.new(0, 0, 0)
-            namegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-            local healthgui = Instance.new("BillboardGui")
-            healthgui.Size = UDim2.new(0, 120, 0, 20)
-            healthgui.SizeOffset = Vector2.new(0, -2.5)
-            healthgui.AlwaysOnTop = true
-            healthgui.ClipsDescendants = true
-            healthgui.LightInfluence = 0
-            healthgui.Name = "HealthBar"
-            healthgui.StudsOffset = Vector3.new(0, -2, 0)
-            healthgui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-            local nametext = Instance.new("TextLabel", namegui)
-            nametext.Text = "Player"
-            nametext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-            nametext.TextStrokeTransparency = 0.5
-            nametext.TextTransparency = 0.25
-            nametext.BackgroundTransparency = 1
-            nametext.TextScaled = false
-            nametext.Size = UDim2.new(1, 0, 1, 0)
-            nametext.TextSize = 16
-            nametext.Font = Enum.Font.GothamSemibold
-            nametext.Name = "Text"
-
-            local healthtext = Instance.new("TextLabel", healthgui)
-            healthtext.Text = "100/100"
-            healthtext.TextColor3 = Color3.fromRGB(255, 255, 255)
-            healthtext.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-            healthtext.TextStrokeTransparency = 0.5
-            healthtext.TextTransparency = 0
-            healthtext.BackgroundTransparency = 0.5
-            healthtext.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            healthtext.TextScaled = false
-            healthtext.Size = UDim2.new(1, 0, 1, 0)
-            healthtext.TextSize = 12
-            healthtext.Font = Enum.Font.Gotham
-            healthtext.Name = "HealthText"
-            healthtext.AnchorPoint = Vector2.new(0.5, 0.5)
-            healthtext.Position = UDim2.new(0.5, 0, 0.5, 0)
-            healthtext.TextXAlignment = Enum.TextXAlignment.Center
-            healthtext.TextYAlignment = Enum.TextYAlignment.Center
-
             for i, v in pairs(Players:GetChildren()) do
                 if v.Team then
                     local Color = v.Team.TeamColor.Color
                     local R, G, B = Color.R * 255, Color.G * 255, Color.B * 255
                     nametext.TextColor3 = Color3.fromRGB(R, G, B)
-                   -- Highlight.OutlineColor = Color3.fromRGB(R, G, B)
                 else
                     nametext.TextColor3 = Color3.fromRGB(0, 255, 0)
-                   -- Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
                 end
 
                 if v.Character and v.Character:FindFirstChild("Head") then
                     local head = v.Character.Head
-                    local humanoid = v.Character:FindFirstChild("Humanoid")
 
-                    if not head:FindFirstChild("playerName") and v ~= game.Players.LocalPlayer then
+                    if not head:FindFirstChild("playerName") and v ~= LocalPlayer then
                         local esp = namegui:Clone()
                         local healthbar = healthgui:Clone()
                         esp.Name = "playerName"
                         healthbar.Name = "playerHealthBar"
                         esp:FindFirstChild("Text").Text = v.Name
-                        healthbar:FindFirstChild("HealthText").Text = humanoid.Health
+                        healthbar:FindFirstChild("HealthText").Text = v.Character:FindFirstChild("Humanoid").Health
                         healthbar.Parent = head
                         esp.Parent = head
-                         -- Store a reference to the healthbar for updating later
                         v.Character.healthBar = healthbar
                     end
+
                     if not v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") and head:FindFirstChild("playerName") then
                         local HighlightClone = Highlight:Clone()
                         HighlightClone.Adornee = v.Character
@@ -206,46 +222,25 @@ function toggleESP(enable) -- Added enable parameter
                         HighlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                         HighlightClone.Name = "Highlight"
                     end
+
+                    local humanoid = v.Character:FindFirstChild("Humanoid")
                     if humanoid then
-                         local function updateHealthBar(character)
-                            local characterHealthBar = character:FindFirstChild("Head"):FindFirstChild("playerHealthBar")
-                            if characterHealthBar then
-                                local healthTextLabel = characterHealthBar:FindFirstChild("HealthText")
-                                if healthTextLabel then
-                                    local humanoid = character:FindFirstChild("Humanoid")
-                                    if humanoid then
-                                        healthTextLabel.Text = math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
-                                         local healthPercentage = humanoid.Health / humanoid.MaxHealth
-                                        healthTextLabel.Size = UDim2.new(healthPercentage, 0, 1, 0)
-                                        if healthPercentage > 0.5 then
-                                            healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                                            Highlight.FillColor = Color3.fromRGB(0, 255, 0)
-                                        elseif healthPercentage > 0.25 then
-                                            healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-                                            Highlight.FillColor = Color3.fromRGB(255, 255, 0)
-                                        else
-                                            healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                                            Highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                        if not espConnections[v.Name] then
-                           espConnections[v.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                                updateHealthBar(v.Character)
-                           end)
-                        end
                         updateHealthBar(v.Character)
+                        if not espConnections[v.Name] then
+                            espConnections[v.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+                                updateHealthBar(v.Character)
+                            end)
+                        end
                     end
                 end
             end
         end
 
-        espConnections.playerAddedConnection = game.Players.PlayerAdded:Connect(function(player)
+        espConnections.playerAddedConnection = Players.PlayerAdded:Connect(function(player)
             espConnections.characterAddedConnection = player.CharacterAdded:Connect(function(character)
                 local head = character:WaitForChild("Head")
                 local humanoid = character:FindFirstChild("Humanoid")
+
                 if not head:FindFirstChild("playerName") then
                     local esp = namegui:Clone()
                     esp.Name = "playerName"
@@ -268,44 +263,17 @@ function toggleESP(enable) -- Added enable parameter
                     HighlightClone.Name = "Highlight"
                 end
                 if humanoid then
-                    local function updateHealthBar(character)
-                        local characterHealthBar = character:FindFirstChild("Head"):FindFirstChild("playerHealthBar")
-                        if characterHealthBar then
-                            local healthTextLabel = characterHealthBar:FindFirstChild("HealthText")
-                            if healthTextLabel then
-                                local humanoid = character:FindFirstChild("Humanoid")
-                                if humanoid then
-                                     healthTextLabel.Text = math.floor(humanoid.Health) .. "/" .. humanoid.MaxHealth
-                                     local healthPercentage = humanoid.Health / humanoid.MaxHealth
-                                    healthTextLabel.Size = UDim2.new(healthPercentage, 0, 1, 0)
-                                    if healthPercentage > 0.5 then
-                                        healthTextLabel.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                                        Highlight.FillColor = Color3.fromRGB(0, 255, 0)
-                                    elseif healthPercentage > 0.2 then
-                                        healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-                                        Highlight.FillColor = Color3.fromRGB(255, 255, 0)
-                                    else
-                                        healthTextLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                                        Highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                                    end
-                                end
-                            end
-                        end
-                    end
-
-                   if not espConnections[player.Name] then
+                    updateHealthBar(character)
+                    if not espConnections[player.Name] then
                         espConnections[player.Name] = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
                             updateHealthBar(character)
                         end)
-                   end
-                    updateHealthBar(character)
+                    end
                 end
             end)
         end)
 
-        espConnections.espLoop = RunService.RenderStepped:Connect(function()
-            playerESPP()
-        end)
+        espConnections.espLoop = RunService.RenderStepped:Connect(playerESPP)
     else
         -- Disconnect all connections and destroy instances
         if espConnections.espLoop then
@@ -329,7 +297,7 @@ function toggleESP(enable) -- Added enable parameter
             end
         end
 
-        for _, player in pairs(game.Players:GetChildren()) do
+        for _, player in pairs(Players:GetChildren()) do
             if player.Character then
                 local head = player.Character:FindFirstChild("Head")
                 if head then
@@ -357,20 +325,45 @@ end
 
 if game.PlaceId == 9588998913 then
     player:Toggle("Auto Proximity", function(on)
-        prox = on
         if on then
-            autoProx()
+            local function autoProx()
+                for _, v in pairs(game.Workspace:GetDescendants()) do
+                    if v:IsA("ProximityPrompt") and
+                       v.Parent:IsA("Part") and
+                       v.Parent.Size == Vector3.new(1, 1, 1) and
+                       v.Name ~= "ConscriptionProx" and
+                       (v.Parent.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
+                        fireproximityprompt(v)
+                    end
+                end
+            end
+            espConnections.autoProxConnection = RunService.Heartbeat:Connect(autoProx) -- Use Heartbeat
+        elseif espConnections.autoProxConnection then
+            espConnections.autoProxConnection:Disconnect()
+            espConnections.autoProxConnection = nil
         end
     end)
 end
 
 if game.PlaceId == 2693739238 then
     player:Button("Buy Pinks", function()
-        BuyPinks()
+        local guns = game:GetService("ReplicatedStorage").Weapons:GetChildren()
+        for _, v in pairs(guns) do
+            if v:FindFirstChild("MaxAmmo") then
+                v.Firerate.Value = 0.01
+                v.MaxAmmo.Value = 9999999
+            end
+        end
+        for i = 1, 50 do
+            game:GetService("ReplicatedStorage").Events.GunShop.RequestBuy:FireServer('RareM4A1')
+            task.wait(0.1)
+        end
     end)
 
     player:Button("Sell Pinks", function()
-        SellPinks()
+        for i = 1, 50 do
+            game:GetService("ReplicatedStorage").Events.Shop.RequestSellItem:FireServer(1)
+        end
     end)
 end
 
@@ -380,8 +373,8 @@ end
 function noClip()
     spawn(function()
         while clipping do
-            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+            for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+                if v:IsA('BasePart') and v.CanCollide then -- Removed v.Name check, potential issue?
                     v.CanCollide = false
                 end
             end
@@ -391,78 +384,29 @@ function noClip()
 end
 
 ----------------------------------------------------------------------
--- Auto Proximity Function
-----------------------------------------------------------------------
-function autoProx()
-    spawn(function()
-        while prox do
-            for i, v in pairs(game.Workspace:GetDescendants()) do
-                if v:IsA("ProximityPrompt") then
-                    if v.Parent:IsA("Part") then
-                        if v.Parent.Size == Vector3.new(1, 1, 1) and v.Name ~= "ConscriptionProx" then
-                            if (v.Parent.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
-                                fireproximityprompt(v)
-                            end
-                        end
-                    end
-                end
-            end
-            task.wait(0.8)
-        end
-    end)
-end
-
-----------------------------------------------------------------------
 -- TP Tool Function
 ----------------------------------------------------------------------
 function giveTPtool()
-    local player = game.Players.LocalPlayer
-    local backpack = player:FindFirstChildOfClass("Backpack")
+    local backpack = LocalPlayer:FindFirstChildOfClass("Backpack")
 
     for _, v in pairs(backpack:GetChildren()) do
         if v.Name == "TP Tool" then
             v:Destroy()
+            break -- Exit loop after destroying
         end
     end
 
-    local mouse = player:GetMouse()
+    local mouse = LocalPlayer:GetMouse()
     local tool = Instance.new("Tool")
     tool.RequiresHandle = false
     tool.Name = "TP Tool"
 
     tool.Activated:Connect(function()
         local pos = mouse.Hit + Vector3.new(0, 2.5, 0)
-        pos = CFrame.new(pos.X, pos.Y, pos.Z)
-        player.Character.HumanoidRootPart.CFrame = pos
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(pos.X, pos.Y, pos.Z)
     end)
 
     tool.Parent = backpack
-end
-
-----------------------------------------------------------------------
--- Buy Pinks Function
-----------------------------------------------------------------------
-function BuyPinks()
-    local guns = game:GetService("ReplicatedStorage").Weapons:GetChildren()
-    for i, v in pairs(guns) do
-        if v:FindFirstChild("MaxAmmo") then
-            v.Firerate.Value = 0.01
-            v.MaxAmmo.Value = 9999999
-        end
-    end
-    for i = 1, 50 do
-        game:GetService("ReplicatedStorage").Events.GunShop.RequestBuy:FireServer('RareM4A1')
-        task.wait(0.1)
-    end
-end
-
-----------------------------------------------------------------------
--- Sell Pinks Function
-----------------------------------------------------------------------
-function SellPinks()
-    for i = 1, 50 do
-        game:GetService("ReplicatedStorage").Events.Shop.RequestSellItem:FireServer(1)
-    end
 end
 
 ----------------------------------------------------------------------
@@ -470,13 +414,11 @@ end
 ----------------------------------------------------------------------
 function GetPasses()
     local creatorType = game.CreatorType
-    local player = game.Players.LocalPlayer
 
     if creatorType == Enum.CreatorType.User then
-        player.UserId = game.CreatorId
+        LocalPlayer.UserId = game.CreatorId
     elseif creatorType == Enum.CreatorType.Group then
-        local groupService = game:GetService("GroupService")
-        local groupInfo = groupService:GetGroupInfoAsync(game.CreatorId)
-        player.UserId = groupInfo.Owner.Id
+        local groupInfo = GroupService:GetGroupInfoAsync(game.CreatorId)
+        LocalPlayer.UserId = groupInfo.Owner.Id
     end
 end
