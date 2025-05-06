@@ -49,23 +49,16 @@ local scriptUrls = {
     ["Aim Bot"] = "https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/Main.lua" -- Corrected key name
 }
 
-local scriptKeys = {
-    ["Void Hub"] = "AMDGLEID"
-}
-
 scripts:Dropdown("Scripts", {"Dex", "Simple Spy", "Void Hub", "Aim Bot"}, true, function(selectedScript)
-    scriptMenu = selectedScript;
+    scriptMenu = selectedScript; -- selection = crate
 end)
 
 ----------------------------------------------------------------------
 -- Launch Script Button
 ----------------------------------------------------------------------
 scripts:Button("Launch Script", function()
-    if scriptMenu and scriptUrls[scriptMenu] then
-        loadstring(game:HttpGet(scriptUrls[scriptMenu]))()
-        if scriptKeys[scriptMenu] then
-            print(scriptKeys[scriptMenu])
-        end
+    if scriptMenu and scriptUrls[scriptMenu] then -- if selection and Shops[selection] then
+        loadstring(game:HttpGet(scriptUrls[scriptMenu]))()  -- Shops[selection]
     end
 end)
 
@@ -304,6 +297,10 @@ end
 ----------------------------------------------------------------------
 
 if game.PlaceId == 104715542330896 then
+    local humanoidRootPart = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+
+
     local blockSpin = w:CreateFolder("BlockSpin")
      blockSpin:Button("Proximity Extender", function()
             for _, v in pairs(game.Workspace:GetDescendants()) do
@@ -332,9 +329,41 @@ if game.PlaceId == 104715542330896 then
             end
         end
     end)
+--[[
+    blockSpin:Button("Buy Ammo", function()
+        local touchPart = game:GetService("Workspace").Map.Tiles.GunShopTile.PatriotWeapons.Interior.Crates["Ammo Crate"].TESTBEACON.TouchPart
+        local player = game:GetService("Players").LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if touchPart and humanoidRootPart then
+                firetouchinterest(humanoidRootPart, touchPart, 1)
+                firetouchinterest(humanoidRootPart, touchPart, 0)
+            end
+    end)
+--]]
+--[[
+    local ammoCrate = game:GetService("Workspace").Map.Tiles.GunShopTile.PatriotWeapons.Interior.Crates["Ammo Crate"].TESTBEACON.TouchPart
+    local shops = {
+    ["Ammo"] = ammoCrate,
+    ["Dex"] = "https://rawscripts.net/raw/Universal-Script-Keyless-mobile-dex-17888"
+}
 
+blockSpin:Dropdown("Shops", {"Ammo", "Dex"}, true, function(crate)
+    selection = crate; 
+end) 
+
+blockSpin:Button("Launch Script", function()
+    if selection and shops[selection] then 
+        print("Opened " .. selection)
+        firetouchinterest(humanoidRootPart, shops[selection], 1)
+        firetouchinterest(humanoidRootPart, shops[selection], 0)
+    else
+    print("Could not open" .. selection)
+    end
+end)
+--]]
 end
-
+-----------------------------------------------------------------------------------
 if game.PlaceId == 2693739238 then
     player:Button("Buy Pinks", function()
         local guns = game:GetService("ReplicatedStorage").Weapons:GetChildren()
