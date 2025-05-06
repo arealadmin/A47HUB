@@ -324,6 +324,7 @@ if game.PlaceId == 104715542330896 then
         for _, v in pairs(weapons) do
             if v:FindFirstChild("Speed") then
                 v.Speed.Value = 2
+                    print("Changed the speed of " ..  v.Name)
                 else
                     print("You do not have any weapons!)
             end
