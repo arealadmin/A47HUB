@@ -305,19 +305,30 @@ end
 
 if game.PlaceId == 104715542330896 then
     local blockSpin = w:CreateFolder("BlockSpin")
-    blockSpin:Button("Proximity Extender", function()
-                for _, v in pairs(game.Workspace:GetDescendants()) do
-                    if v:IsA("ProximityPrompt") and
-                       v.Parent:IsA("Part") and
-                       v.Name == "ProximityPrompt" then -- and
-                       --(v.Parent.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
-                       -- fireproximityprompt(v)
-                       v.RequiresLineOfSight = false
-                       v.Enabled = true
-                       v.MaxActivationDistance = 23
-                    end
+     blockSpin:Button("Proximity Extender", function()
+            for _, v in pairs(game.Workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") and
+                    v.Parent:IsA("Part") and
+                    v.Name == "ProximityPrompt" then -- and
+                    --(v.Parent.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
+                    -- fireproximityprompt(v)
+                    v.RequiresLineOfSight = false
+                    v.Enabled = true
+                    v.MaxActivationDistance = 23
                 end
+            end
     end)
+    
+    blockSpin:Button("Buy Pinks", function()
+        local melees = game:GetService("ReplicatedStorage").Items.melee
+        local cqb = melees:GetChildren()
+        for _, weapon in pairs(cqb) do
+            if weapon:FindFirstChild("Speed") then
+                weapon.Speed.Value = 2
+            end
+        end
+    end)
+
 end
 
 if game.PlaceId == 2693739238 then
