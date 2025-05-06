@@ -305,9 +305,7 @@ end
 
 if game.PlaceId == 104715542330896 then
     local blockSpin = w:CreateFolder("BlockSpin")
-    blockSpin:Button("Proximity Extender", function(on)
-        if on then
-            local function autoProx()
+    blockSpin:Button("Proximity Extender", function()
                 for _, v in pairs(game.Workspace:GetDescendants()) do
                     if v:IsA("ProximityPrompt") and
                        v.Parent:IsA("Part") and
@@ -319,7 +317,6 @@ if game.PlaceId == 104715542330896 then
                        v.MaxActivationDistance = 23
                     end
                 end
-            end
     end)
 end
 
