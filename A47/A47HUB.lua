@@ -321,9 +321,11 @@ if game.PlaceId == 104715542330896 then
     
     blockSpin:Button("Fast Melees", function()
         local weapons = game:GetService("Players").LocalPlayer.Backpack:GetChildren()
-        for _, weapon in pairs(weapons) do
-            if weapon:FindFirstChild("Speed") then
-                weapon.Speed.Value = 2
+        for _, v in pairs(weapons) do
+            if v:FindFirstChild("Speed") then
+                v.Speed.Value = 2
+                else
+                    print("You do not have any weapons!)
             end
         end
     end)
