@@ -322,11 +322,13 @@ if game.PlaceId == 104715542330896 then
     blockSpin:Button("Fast Melees", function()
         local weapons = game:GetService("Players").LocalPlayer.Backpack:GetChildren()
         for _, v in pairs(weapons) do
-            if v:FindFirstChild("Speed") then
-                v.Speed.Value = 2
+            local hasSpeed = v:GetAttribute("Speed")
+            if hasSpeed then
+                v:SetAttribute("Speed", 2)
+                v:SetAttribute("ConeAngle", 360)
                     print("Changed the speed of " ..  v.Name)
                 else
-                    print("You do not have any weapons!)
+                    print("You do not have any weapons!")
             end
         end
     end)
