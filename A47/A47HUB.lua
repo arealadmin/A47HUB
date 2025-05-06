@@ -304,7 +304,9 @@ end
 ----------------------------------------------------------------------
 
 if game.PlaceId == 104715542330896 then
-    local blockSpin = w:CreateFolder("BlockSpin")
+    local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))()
+    local w = library:CreateWindow("BlockSpin")
+    local blockSpin = w:CreateFolder("Main")
     blockSpin:Button("Proximity Extender", function(on)
         if on then
             local function autoProx()
