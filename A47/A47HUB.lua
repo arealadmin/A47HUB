@@ -319,10 +319,9 @@ if game.PlaceId == 104715542330896 then
             end
     end)
     
-    blockSpin:Button("Buy Pinks", function()
-        local melees = game:GetService("ReplicatedStorage").Items.melee
-        local cqb = melees:GetChildren()
-        for _, weapon in pairs(cqb) do
+    blockSpin:Button("Fast Melees", function()
+        local weapons = game:GetService("Players").LocalPlayer.Backpack:GetChildren()
+        for _, weapon in pairs(weapons) do
             if weapon:FindFirstChild("Speed") then
                 weapon.Speed.Value = 2
             end
