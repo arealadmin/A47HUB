@@ -304,7 +304,7 @@ end
 ----------------------------------------------------------------------
 
 if game.PlaceId == 104715542330896 then
-    local blockSpin = w:CreateFolder("Script Menu")
+    local blockSpin = w:CreateFolder("BlockSpin")
     blockSpin:Button("Proximity Extender", function(on)
         if on then
             local function autoProx()
