@@ -303,25 +303,23 @@ end
 -- Game-Specific Functions
 ----------------------------------------------------------------------
 
-if game.PlaceId == 9588998913 then
-    player:Toggle("Auto Proximity", function(on)
+if game.PlaceId == 104715542330896 then
+    local blockSpin = w:CreateFolder("Script Menu")
+    blockSpin:Button("Proximity Extender", function(on)
         if on then
             local function autoProx()
                 for _, v in pairs(game.Workspace:GetDescendants()) do
                     if v:IsA("ProximityPrompt") and
                        v.Parent:IsA("Part") and
-                       v.Parent.Size == Vector3.new(1, 1, 1) and
-                       v.Name ~= "ConscriptionProx" and
-                       (v.Parent.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
-                        fireproximityprompt(v)
+                       v.Name == "ProximityPrompt" then -- and
+                       --(v.Parent.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 50 then
+                       -- fireproximityprompt(v)
+                       v.RequiresLineOfSight = false
+                       v.Enabled = true
+                       v.MaxActivationDistance = 23
                     end
                 end
             end
-            espConnections.autoProxConnection = RunService.Heartbeat:Connect(autoProx)
-        elseif espConnections.autoProxConnection then
-            espConnections.autoProxConnection:Disconnect()
-            espConnections.autoProxConnection = nil
-        end
     end)
 end
 
