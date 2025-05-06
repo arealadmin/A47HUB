@@ -43,7 +43,7 @@ local camera = workspace.CurrentCamera
 -- Script Menu Dropdown
 ----------------------------------------------------------------------
 local scriptUrls = {
-    Dex = "https://rawscripts.net/raw/Universal-Script-Keyless-mobile-dex-17888",
+    ["Dex"] = "https://rawscripts.net/raw/Universal-Script-Keyless-mobile-dex-17888",
     ["Simple Spy"] = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua",
     ["Void Hub"] = 'https://rawscripts.net/raw/BlockSpin-Void-Hub-Combat-Script-V2-37572',
     ["Aim Bot"] = "https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/Main.lua" -- Corrected key name
@@ -304,7 +304,8 @@ end
 ----------------------------------------------------------------------
 
 if game.PlaceId == 104715542330896 then
-    player:Button("Proximity Extender", function(on)
+    local blockSpin = w:CreateFolder("BlockSpin")
+    blockSpin:Button("Proximity Extender", function(on)
         if on then
             local function autoProx()
                 for _, v in pairs(game.Workspace:GetDescendants()) do
